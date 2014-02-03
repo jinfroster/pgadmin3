@@ -21,7 +21,7 @@
 class dlgSearchObject : public pgDialog
 {
 public:
-	dlgSearchObject(frmMain *p, pgDatabase *db);
+	dlgSearchObject(frmMain *p, pgDatabase *db, const wxChar *defaultType = _("All types"));
 	~dlgSearchObject();
 
 private:
@@ -31,6 +31,7 @@ private:
 	void OnChange(wxCommandEvent &ev);
 	void OnSelSearchResult(wxListEvent &ev);
 	wxString TranslatePath(wxString &path);
+	void ToggleBtnSearch(bool enable);
 	WX_DECLARE_STRING_HASH_MAP(wxString, LngMapping);
 	LngMapping aMap;
 

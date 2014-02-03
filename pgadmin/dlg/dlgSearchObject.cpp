@@ -34,7 +34,7 @@ BEGIN_EVENT_TABLE(dlgSearchObject, pgDialog)
 	EVT_LIST_ITEM_SELECTED(XRCID("lcResults"), dlgSearchObject::OnSelSearchResult)
 END_EVENT_TABLE()
 
-dlgSearchObject::dlgSearchObject(frmMain *p, pgDatabase *db)
+dlgSearchObject::dlgSearchObject(frmMain *p, pgDatabase *db, const wxChar *defaultType)
 {
 	parent = p;
 	header = wxT("");
@@ -47,7 +47,7 @@ dlgSearchObject::dlgSearchObject(frmMain *p, pgDatabase *db)
 	appearanceFactory->SetIcons(this);
 	RestorePosition();
 
-	btnSearch->Disable();
+	ToggleBtnSearch(false);
 
 	lcResults->InsertColumn(0, _("Type"));
 	lcResults->InsertColumn(1, _("Name"));
@@ -135,7 +135,11 @@ dlgSearchObject::dlgSearchObject(frmMain *p, pgDatabase *db)
 		cbType->Append(_("Extensions"));
 		cbType->Append(_("Collations"));
 	}
-	cbType->SetSelection(0);
+
+	int typeIndex = cbType->FindString(defaultType);
+	if(typeIndex == wxNOT_FOUND)
+		typeIndex = 0;
+	cbType->SetSelection(typeIndex);
 
 	txtPattern->SetFocus();
 }
@@ -188,15 +192,23 @@ void dlgSearchObject::OnSelSearchResult(wxListEvent &ev)
 
 void dlgSearchObject::OnChange(wxCommandEvent &ev)
 {
+	ToggleBtnSearch(true);
+}
+
+void dlgSearchObject::ToggleBtnSearch(bool enable)
+{
 	/* When someone searches for operators, the limit of 3 characters is ignored */
-	if(aMap[cbType->GetValue()] != wxT("Operators") && txtPattern->GetValue().Length() < 3)
-		btnSearch->Disable();
-	else
+	if(enable && (aMap[cbType->GetValue()] == wxT("Operators") || txtPattern->GetValue().Length() >= 3))
 		btnSearch->Enable();
+	else
+		btnSearch->Disable();
 }
 
 void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 {
+	ToggleBtnSearch(false);
+	if (statusBar)
+		statusBar->SetStatusText(wxT("Searching..."));
 
 	/*
 	Adding objects:
@@ -460,6 +472,14 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		lcResults->SetColumnWidth(1, wxLIST_AUTOSIZE);
 		lcResults->SetColumnWidth(2, wxLIST_AUTOSIZE);
 	}
+
+	if (statusBar)
+		if (i > 0)
+			statusBar->SetStatusText(wxString::Format(wxPLURAL("Found %d item", "Found %d items",i), i));
+		else
+			statusBar->SetStatusText(wxString::Format(wxT("Nothing was found"), i));
+
+	ToggleBtnSearch(true);
 }
 
 wxString dlgSearchObject::TranslatePath(wxString &path)
@@ -495,15 +515,52 @@ searchObjectFactory::searchObjectFactory(menuFactoryList *list, wxMenu *mnu, ctl
 
 wxWindow *searchObjectFactory::StartDialog(frmMain *form, pgObject *obj)
 {
-	dlgSearchObject *so = new dlgSearchObject(form, (pgDatabase *) obj);
+	const wxChar *objType;
+	switch (obj->GetMetaType())
+	{
+		case PGM_TABLE:
+			objType = _("Tables");
+			break;
+		case PGM_COLUMN:
+			objType = _("Columns");
+			break;
+		case PGM_TRIGGER:
+			objType = _("Triggers");
+			break;
+		case PGM_VIEW:
+			objType = _("Views");
+			break;
+		case PGM_RULE:
+			objType = _("Rules");
+			break;
+		case PGM_INDEX:
+			objType = _("Indexes");
+			break;
+		case PGM_FUNCTION:
+			objType = _("Functions");
+			break;
+		case PGM_CONSTRAINT:
+			objType = _("Constraints");
+			break;
+		case PGM_SEQUENCE:
+			objType = _("Sequences");
+			break;
+		case PGM_DOMAIN:
+			objType = _("Domains");
+			break;
+		case PGM_FOREIGNTABLE:
+			objType = _("Foreign Tables");
+			break;
+		default:
+			objType = _("All types");
+		break;
+	}
+	dlgSearchObject *so = new dlgSearchObject(form, obj->GetDatabase(), objType);
 	so->Show();
 	return 0;
 }
 
 bool searchObjectFactory::CheckEnable(pgObject *obj)
 {
-	if (obj && obj->IsCreatedBy(databaseFactory))
-		return ((pgDatabase *)obj)->GetConnected();
-
-	return false;
+	return obj && obj->GetDatabase() && obj->GetDatabase()->GetConnected();
 }
