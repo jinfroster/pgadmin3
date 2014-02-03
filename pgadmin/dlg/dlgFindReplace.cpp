@@ -279,10 +279,13 @@ void dlgFindReplace::OnReplaceAll(wxCommandEvent &ev)
 	sqlbox->ReplaceAll(txtFind->GetValue(), txtReplace->GetValue(), wholeWord, matchCase, useRegexps);
 }
 
-void dlgFindReplace::FindNext()
+void dlgFindReplace::FindNext(bool directionForward)
 {
 	if (btnFind->IsEnabled() && !txtFind->IsEmpty())
 	{
+		rdDirectionForward->SetValue(directionForward);
+		rdDirectionBackward->SetValue(!directionForward);
+
 		wxCommandEvent ev;
 		OnFind(ev);
 	}
