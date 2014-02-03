@@ -36,6 +36,13 @@
 #endif
 #endif
 
+// Position of status line fields
+enum
+{
+    EGSTATUSPOS_ROWS,
+    EGSTATUSPOS_MSGS
+};
+
 class cacheLine
 {
 public:
@@ -132,8 +139,8 @@ public:
 	wxString Quote(pgConn *conn, const wxString &value);
 	OID type;
 	long typlen, typmod;
-	wxString name, typeName, displayTypeName;
-	bool numeric, isPrimaryKey, needResize;
+	wxString name, typeName, displayTypeName, description;
+	bool numeric, isPrimaryKey, needResize, hasDefault, notNull;
 };
 
 
@@ -168,6 +175,7 @@ public:
 	int GetNumberCols();
 	wxString GetColLabelValue(int col);
 	wxString GetColLabelValueUnformatted(int col);
+	wxString GetColDescription(int col);
 	wxString GetRowLabelValue(int row);
 	wxGridCellAttr *GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind);
 
@@ -266,6 +274,7 @@ public:
 	{
 		return editMenu;
 	};
+	void SetStatusTextRows(const int numRows);
 
 private:
 	void OnEraseBackground(wxEraseEvent &event);

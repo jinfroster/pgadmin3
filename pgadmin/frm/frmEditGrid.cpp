@@ -107,10 +107,12 @@ frmEditGrid::frmEditGrid(frmMain *form, const wxString &_title, pgConn *_conn, p
 	manager.SetManagedWindow(this);
 	manager.SetFlags(wxAUI_MGR_DEFAULT | wxAUI_MGR_TRANSPARENT_DRAG);
 
-	SetMinSize(wxSize(300, 350));
+	SetMinSize(wxSize(300, 200));
 
-	CreateStatusBar();
-	SetStatusBarPane(-1);
+	int iWidths[2] = {150, -1};
+	CreateStatusBar(2);
+	SetStatusBarPane(EGSTATUSPOS_MSGS);
+	SetStatusWidths(2, iWidths);
 
 	sqlGrid = new ctlSQLEditGrid(this, CTL_EDITGRID, wxDefaultPosition, wxDefaultSize);
 	sqlGrid->SetTable(0);
@@ -422,6 +424,19 @@ void frmEditGrid::SetLimit(const int rowlimit)
 	}
 }
 
+void frmEditGrid::SetStatusTextRows(const int numRows)
+{
+	wxString status = wxString::Format(wxPLURAL("%d row", "%d rows", numRows), numRows);
+
+	if (limit > 0 && numRows == limit)
+		status += wxString::Format(_(" LIMIT"), limit);
+
+	if (GetFilter().Trim().Len() > 0)
+		status += _(", FILTER");
+
+	SetStatusText(status, EGSTATUSPOS_ROWS);
+}
+
 void frmEditGrid::OnLabelRightClick(wxGridEvent &event)
 {
 	wxMenu *xmenu = new wxMenu();
@@ -498,6 +513,7 @@ void frmEditGrid::OnCellChange(wxGridEvent &event)
 			fileMenu->Enable(MNU_SAVE, false);
 			editMenu->Enable(MNU_UNDO, false);
 		}
+		SetStatusText(table->GetColDescription(event.GetCol()), EGSTATUSPOS_MSGS);
 	}
 
 	if (doSkip)
@@ -735,7 +751,7 @@ void frmEditGrid::OnCopy(wxCommandEvent &ev)
 					if (text && !text->GetSelectedText().IsEmpty())
 					{
 						wxTheClipboard->SetData(new wxTextDataObject(text->GetSelectedText()));
-						SetStatusText(_("Data from one cell copied to clipboard."));
+						SetStatusText(_("Data from one cell copied to clipboard."), EGSTATUSPOS_MSGS);
 					}
 				}
 				else
@@ -744,7 +760,7 @@ void frmEditGrid::OnCopy(wxCommandEvent &ev)
 					if (text && !text->GetStringSelection().IsEmpty())
 					{
 						wxTheClipboard->SetData(new wxTextDataObject(text->GetStringSelection()));
-						SetStatusText(_("Data from one cell copied to clipboard."));
+						SetStatusText(_("Data from one cell copied to clipboard."), EGSTATUSPOS_MSGS);
 					}
 				}
 
@@ -757,7 +773,7 @@ void frmEditGrid::OnCopy(wxCommandEvent &ev)
 			copied = sqlGrid->Copy();
 			SetStatusText(wxString::Format(
 			                  wxPLURAL("Data from %d row copied to clipboard.", "Data from %d rows copied to clipboard.", copied),
-			                  copied));
+			                  copied), EGSTATUSPOS_MSGS);
 		}
 	}
 }
@@ -1235,7 +1251,7 @@ void frmEditGrid::OnDelete(wxCommandEvent &event)
 
 	sqlGrid->EndBatch();
 
-	SetStatusText(wxString::Format(wxPLURAL("%d row.", "%d rows.", sqlGrid->GetTable()->GetNumberStoredRows()), sqlGrid->GetTable()->GetNumberStoredRows()), 0);
+	SetStatusTextRows(sqlGrid->GetTable()->GetNumberStoredRows());
 }
 
 
@@ -1366,7 +1382,8 @@ void frmEditGrid::Go()
 	if (connection->ExecuteScalar(wxT("SELECT count(*) FROM ") + tableName + wxT(" WHERE false")) == wxT(""))
 		return;
 
-	SetStatusText(_("Refreshing data, please wait."), 0);
+	SetStatusText(_(""), EGSTATUSPOS_ROWS);
+	SetStatusText(_("Refreshing data, please wait."), EGSTATUSPOS_MSGS);
 
 	toolBar->EnableTool(MNU_REFRESH, false);
 	viewMenu->Enable(MNU_REFRESH, false);
@@ -1455,7 +1472,8 @@ void frmEditGrid::Go()
 		return;
 	}
 
-	SetStatusText(wxString::Format(wxPLURAL("%d row.", "%d rows.", (int)thread->DataSet()->NumRows()), (int)thread->DataSet()->NumRows()), 0);
+	SetStatusTextRows((int)thread->DataSet()->NumRows());
+	SetStatusText(_("OK"), EGSTATUSPOS_MSGS);
 
 	sqlGrid->BeginBatch();
 
@@ -1517,7 +1535,7 @@ void frmEditGrid::Abort()
 
 	if (thread)
 	{
-		SetStatusText(_("aborting."), 0);
+		SetStatusText(_("aborting."), EGSTATUSPOS_MSGS);
 		if (thread->IsRunning())
 		{
 			thread->CancelExecution();
@@ -2308,9 +2326,10 @@ sqlTable::sqlTable(pgConn *conn, pgQueryThread *_thread, const wxString &tabName
 
 	pgSet *colSet = connection->ExecuteSet(
 	                    wxT("SELECT n.nspname AS nspname, relname, format_type(t.oid,NULL) AS typname, format_type(t.oid, att.atttypmod) AS displaytypname, ")
-	                    wxT("nt.nspname AS typnspname, attname, attnum, COALESCE(b.oid, t.oid) AS basetype, atthasdef, adsrc,\n")
+	                    wxT("nt.nspname AS typnspname, attname, attnum, COALESCE(b.oid, t.oid) AS basetype, attnotnull, atthasdef, adsrc,\n")
 	                    wxT("       CASE WHEN t.typbasetype::oid=0 THEN att.atttypmod else t.typtypmod END AS typmod,\n")
-	                    wxT("       CASE WHEN t.typbasetype::oid=0 THEN att.attlen else t.typlen END AS typlen\n")
+	                    wxT("       CASE WHEN t.typbasetype::oid=0 THEN att.attlen else t.typlen END AS typlen,\n")
+	                    wxT("       pg_catalog.col_description(att.attrelid, att.attnum) AS description\n")
 	                    wxT("  FROM pg_attribute att\n")
 	                    wxT("  JOIN pg_type t ON t.oid=att.atttypid\n")
 	                    wxT("  JOIN pg_namespace nt ON nt.oid=t.typnamespace\n")
@@ -2332,6 +2351,8 @@ sqlTable::sqlTable(pgConn *conn, pgQueryThread *_thread, const wxString &tabName
 			columns[0].numeric = true;
 			columns[0].attr->SetReadOnly(true);
 			columns[0].type = PGTYPCLASS_NUMERIC;
+			columns[i].description = wxEmptyString;
+			columns[i].notNull = true;
 		}
 
 		for (i = (hasOids ? 1 : 0) ; i < nCols ; i++)
@@ -2341,6 +2362,9 @@ sqlTable::sqlTable(pgConn *conn, pgQueryThread *_thread, const wxString &tabName
 			columns[i].name = colSet->GetVal(wxT("attname"));
 			columns[i].typeName = colSet->GetVal(wxT("typname"));
 			columns[i].displayTypeName = colSet->GetVal(wxT("displaytypname"));
+			columns[i].description = colSet->GetVal(wxT("description"));
+			columns[i].hasDefault = colSet->GetBool(wxT("atthasdef"));
+			columns[i].notNull = colSet->GetBool(wxT("attnotnull"));
 
 			// Special case for character datatypes. We always cast them to text to avoid
 			// truncation issues with casts like ::character(3)
@@ -2349,7 +2373,7 @@ sqlTable::sqlTable(pgConn *conn, pgQueryThread *_thread, const wxString &tabName
 
 			columns[i].type = (Oid)colSet->GetOid(wxT("basetype"));
 			if ((columns[i].type == PGOID_TYPE_INT4 || columns[i].type == PGOID_TYPE_INT8)
-			        && colSet->GetBool(wxT("atthasdef")))
+			        && columns[i].hasDefault)
 			{
 				wxString adsrc = colSet->GetVal(wxT("adsrc"));
 				if (adsrc ==  wxT("nextval('") + colSet->GetVal(wxT("relname")) + wxT("_") + columns[i].name + wxT("_seq'::text)") ||
@@ -2570,6 +2594,50 @@ wxString sqlTable::GetColLabelValueUnformatted(int col)
 	return columns[col].name;
 }
 
+wxString sqlTable::GetColDescription(int col)
+{
+	if (!(0 <= col && col < nCols))
+		return wxEmptyString;
+
+	wxString descr = columns[col].name + wxT(", ") + columns[col].displayTypeName;
+	bool par = false;
+
+	if (columns[col].isPrimaryKey)
+	{
+		descr += wxT(" (PK");
+		par = true;
+	}
+	else if (columns[col].notNull)
+	{
+		if (!par)
+		{
+			descr += wxT(" (");
+			par = true;
+		}
+		else
+			descr += wxT(", ");
+		descr += wxT("NOT NULL");
+	}
+
+	if (columns[col].hasDefault)
+	{
+		if (!par)
+		{
+			descr += wxT(" (");
+			par = true;
+		}
+		else
+			descr += wxT(", ");
+		descr += wxT("DEFAULT");
+	}
+
+	if (par)
+		descr += wxT(")");
+
+	if (columns[col].description.Len() > 0)
+		descr += wxT(": ") + columns[col].description;
+	return descr;
+}
 
 wxString sqlTable::GetRowLabelValue(int row)
 {
@@ -2764,7 +2832,8 @@ bool sqlTable::StoreLine()
 
 						done = true;
 						rowsStored++;
-						((wxFrame *)GetView()->GetParent())->SetStatusText(wxString::Format(wxT("%d rows."), GetNumberStoredRows()));
+						((frmEditGrid *)GetView()->GetParent())->SetStatusTextRows(GetNumberStoredRows());
+
 						if (rowsAdded == rowsStored)
 							GetView()->AppendRows();
 
