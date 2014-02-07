@@ -349,7 +349,7 @@ void ctlSQLGrid::OnLabelDoubleClick(wxGridEvent &event)
 		else // toggle between some predefined sizes
 		{
 
-			if (col < colMaxSizes.GetCount() && colMaxSizes[col] >= 0)
+			if (col < (int)colMaxSizes.GetCount() && colMaxSizes[col] >= 0)
 				extentWant = colMaxSizes[col];
 			else
 			{
@@ -420,7 +420,7 @@ void ctlSQLGrid::OnLabelClick(wxGridEvent &event)
 
 void ctlSQLGrid::AutoSizeColumn(int col, bool setAsMin, bool doLimit)
 {
-	if (col < colMaxSizes.GetCount() && colMaxSizes[col] >= 0)
+	if (col < (int)colMaxSizes.GetCount() && colMaxSizes[col] >= 0)
 		SetColSize(col, colMaxSizes[col]);
 	else
 		wxGrid::AutoSizeColumn(col, setAsMin);
@@ -515,7 +515,7 @@ void ctlSQLGrid::AutoSizeColumns(bool setAsMin)
 		{
 			oldSize = GetColSize(col);
 			// Is too wide and no user-specified size
-			if (oldSize > maxSize && !(col < colMaxSizes.GetCount() && colMaxSizes[col] == -1))
+			if (oldSize > maxSize && !(col < (int)colMaxSizes.GetCount() && colMaxSizes[col] == -1))
 			{
 				totalSize -= oldSize;
 				/* Shrink wide column to maxSize.
