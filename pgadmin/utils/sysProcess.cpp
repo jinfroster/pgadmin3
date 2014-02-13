@@ -19,17 +19,17 @@
 #include "utils/sysProcess.h"
 
 
-sysProcess::sysProcess(wxEvtHandler *evh)
-	: wxProcess(evh)
+sysProcess::sysProcess(wxEvtHandler *evh, wxMBConv &conv)
+	: wxProcess(evh), m_conv(conv)
 {
 	pid = 0;
 	Redirect();
 }
 
 
-sysProcess *sysProcess::Create(const wxString &exec, wxEvtHandler *evh, wxArrayString *env)
+sysProcess *sysProcess::Create(const wxString &exec, wxEvtHandler *evh, wxArrayString *env, wxMBConv &conv)
 {
-	sysProcess *proc = new sysProcess(evh);
+	sysProcess *proc = new sysProcess(evh, conv);
 	if (env)
 		proc->SetEnvironment(*env);
 
@@ -102,7 +102,7 @@ wxString sysProcess::ReadStream(wxInputStream *input)
 		if (size)
 		{
 			buffer[size] = 0;
-			str.Append(wxString::Format(wxT("%s"), wxString(buffer, wxConvLibc).c_str()));
+			str.Append(wxString::Format(wxT("%s"), wxString(buffer, m_conv).c_str()));
 		}
 	}
 	return str;

@@ -575,7 +575,6 @@ void ctlSQLBox::OnEndProcess(wxProcessEvent &ev)
 
 void ctlSQLBox::ExternalFormat()
 {
-	wxLogInfo(wxT("ctlSQLBox::ExternalFormat()"));
 	processOutput = wxEmptyString;
 
 	bool isSelected = true;
@@ -585,13 +584,10 @@ void ctlSQLBox::ExternalFormat()
 		processInput = GetText();
 		isSelected = false;
 	}
-
 	if (processInput.IsEmpty())
 		return;
 
-	wxLogInfo(wxT("ctlSQLBox::ExternalFormat() sql before=[%s]"), processInput.c_str());
-
-	process = sysProcess::Create(wxT("C:\\TEMP\\sqlformat\\SqlFormatter.exe"), this, NULL);
+	process = sysProcess::Create(wxT("sqlformat"), this, NULL, wxConvUTF8);
 	process->WriteOutputStream(processInput);
 	process->CloseOutput();
 
@@ -603,8 +599,6 @@ void ctlSQLBox::ExternalFormat()
 		wxSafeYield();
 		wxMilliSleep(10);
 	}
-
-	wxLogInfo(wxT("ctlSQLBox::ExternalFormat() sql after=[%s]"), processOutput.c_str());
 
 	if (isSelected)
 		ReplaceSelection(processOutput);

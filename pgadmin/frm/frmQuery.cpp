@@ -78,7 +78,6 @@
 #include "images/query_cancel.pngc"
 #include "images/help.pngc"
 #include "images/gqbJoin.pngc"
-#include "images/externalformat.pngc"
 
 #define CTRLID_CONNECTION       4200
 #define CTRLID_DATABASELABEL    4201
