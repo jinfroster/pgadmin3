@@ -83,6 +83,11 @@ wxString sysProcess::ReadErrorStream()
 	return wxEmptyString;
 }
 
+void sysProcess::WriteOutputStream(const wxString &out)
+{
+	wxTextOutputStream tos(*GetOutputStream());
+	tos.WriteString(out);
+}
 
 wxString sysProcess::ReadStream(wxInputStream *input)
 {

@@ -25,6 +25,7 @@ public:
 	void SetEnvironment(const wxArrayString &environment);
 	wxString ReadInputStream();
 	wxString ReadErrorStream();
+	void WriteOutputStream(const wxString &out);
 
 	static sysProcess *Create(const wxString &exec, wxEvtHandler *evh = 0, wxArrayString *env = 0);
 

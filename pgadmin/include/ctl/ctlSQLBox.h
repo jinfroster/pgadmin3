@@ -34,6 +34,8 @@ struct TextToFind
 	struct CharacterRange chrgText;
 };
 
+class sysProcess;
+
 // Class declarations
 class ctlSQLBox : public wxStyledTextCtrl
 {
@@ -67,6 +69,7 @@ public:
 	}
 	bool BlockComment(bool uncomment = false);
 	void UpdateLineNumber();
+	void ExternalFormat();
 
 	CharacterRange RegexFindText(int minPos, int maxPos, const wxString &text);
 
@@ -77,10 +80,13 @@ private:
 
 	void OnPositionStc(wxStyledTextEvent &event);
 	void OnMarginClick(wxStyledTextEvent &event);
+	void OnEndProcess(wxProcessEvent &event);
 
 	dlgFindReplace *m_dlgFindReplace;
 	pgConn *m_database;
 	bool m_autoIndent, m_autocompDisabled;
+	sysProcess *process;
+	wxString processOutput;
 
 	friend class QueryPrintout;
 };

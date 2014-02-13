@@ -44,6 +44,7 @@ BEGIN_EVENT_TABLE(ctlSQLBox, wxStyledTextCtrl)
 	EVT_KILL_FOCUS(ctlSQLBox::OnKillFocus)
 	EVT_STC_PAINTED(-1,  ctlSQLBox::OnPositionStc)
 	EVT_STC_MARGINCLICK(-1, ctlSQLBox::OnMarginClick)
+	EVT_END_PROCESS(-1,  ctlSQLBox::OnEndProcess)
 END_EVENT_TABLE()
 
 
@@ -56,6 +57,7 @@ ctlSQLBox::ctlSQLBox()
 	m_dlgFindReplace = 0;
 	m_autoIndent = false;
 	m_autocompDisabled = false;
+	process = 0;
 }
 
 
@@ -66,6 +68,7 @@ ctlSQLBox::ctlSQLBox(wxWindow *parent, wxWindowID id, const wxPoint &pos, const 
 	m_database = NULL;
 
 	m_autocompDisabled = false;
+	process = 0;
 
 	Create(parent, id, pos, size, style);
 }
@@ -557,6 +560,56 @@ void ctlSQLBox::UpdateLineNumber()
 	{
 		SetMarginWidth(0, 0);
 	}
+}
+
+void ctlSQLBox::OnEndProcess(wxProcessEvent &ev)
+{
+	if (process)
+	{
+		wxString error = process->ReadErrorStream();
+		processOutput += process->ReadInputStream();
+		delete process;
+		process = 0;
+	}
+}
+
+void ctlSQLBox::ExternalFormat()
+{
+	wxLogInfo(wxT("ctlSQLBox::ExternalFormat()"));
+	processOutput = wxEmptyString;
+
+	bool isSelected = true;
+	wxString processInput = GetSelectedText();
+	if (processInput.IsNull())
+	{
+		processInput = GetText();
+		isSelected = false;
+	}
+
+	if (processInput.IsEmpty())
+		return;
+
+	wxLogInfo(wxT("ctlSQLBox::ExternalFormat() sql before=[%s]"), processInput.c_str());
+
+	process = sysProcess::Create(wxT("C:\\TEMP\\sqlformat\\SqlFormatter.exe"), this, NULL);
+	process->WriteOutputStream(processInput);
+	process->CloseOutput();
+
+	while (process)
+	{
+		wxSafeYield();
+		if (process)
+			processOutput += process->ReadInputStream();
+		wxSafeYield();
+		wxMilliSleep(10);
+	}
+
+	wxLogInfo(wxT("ctlSQLBox::ExternalFormat() sql after=[%s]"), processOutput.c_str());
+
+	if (isSelected)
+		ReplaceSelection(processOutput);
+	else
+		SetText(processOutput);
 }
 
 void ctlSQLBox::OnPositionStc(wxStyledTextEvent &event)
