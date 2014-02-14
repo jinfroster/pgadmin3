@@ -440,6 +440,11 @@ public:
 	{
 		Write(wxT("MacrosFile"), newval);
 	}
+	wxString GetExtFormatCmd();
+	void SetExtFormatCmd(const wxString &newval)
+	{
+		Write(wxT("ExtFormatCmd"), newval);
+	}
 	wxString GetHistoryFile();
 	void SetHistoryFile(const wxString &newval)
 	{

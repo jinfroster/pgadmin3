@@ -587,7 +587,9 @@ void ctlSQLBox::ExternalFormat()
 	if (processInput.IsEmpty())
 		return;
 
-	process = sysProcess::Create(wxT("sqlformat"), this, NULL, wxConvUTF8);
+	wxString formatCmd = settings->GetExtFormatCmd();
+
+	process = sysProcess::Create(formatCmd, this, NULL, wxConvUTF8);
 	process->WriteOutputStream(processInput);
 	process->CloseOutput();
 

@@ -855,3 +855,24 @@ wxString sysSettings::GetHistoryFile()
 	return s;
 }
 
+wxString sysSettings::GetExtFormatCmd()
+{
+	wxString s, tmp;
+
+#if wxCHECK_VERSION(2, 9, 5)
+	wxStandardPaths &stdp = wxStandardPaths::Get();
+#else
+	wxStandardPaths stdp;
+#endif
+	tmp = stdp.GetPluginsDir();
+#ifdef WIN32
+	// Poor Man's T-SQL Formatter (http://www.architectshack.com/PoorMansTSqlFormatter.ashx)
+	tmp += wxT("\\SqlFormatter.exe");
+#else
+	// Free SQL Formatter (http://sourceforge.net/projects/fsqlf/)
+	tmp += wxT("/fsqlf");
+#endif
+
+	Read(wxT("ExtFormatCmd"), &s, tmp);
+	return s;
+}
