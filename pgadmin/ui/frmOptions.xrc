@@ -399,96 +399,96 @@
               <border>4</border>
             </object>
             <object class="sizeritem">
-			  <object class="wxPanel" name="pnlQueryToolEditor">
-				  <hidden>1</hidden>
+              <object class="wxPanel" name="pnlQueryToolEditor">
+                <hidden>1</hidden>
                 <object class="wxFlexGridSizer">
                   <cols>2</cols>
                   <vgap>5</vgap>
                   <hgap>5</hgap>
                   <growablecols>1</growablecols>
-                <object class="sizeritem">
-                  <object class="wxStaticText" name="stSqlFont">
-                    <label>Font</label>
+                  <object class="sizeritem">
+                    <object class="wxStaticText" name="stSqlFont">
+                      <label>Font</label>
+                    </object>
+                    <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                    <border>4</border>
                   </object>
-                  <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
-                  <border>4</border>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxFontPickerCtrl" name="pickerSqlFont"/>
-                  <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
-                  <border>4</border>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxStaticText" name="lblMaxColSize">
-                    <label>Max. characters per column</label>
+                  <object class="sizeritem">
+                    <object class="wxFontPickerCtrl" name="pickerSqlFont"/>
+                    <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                    <border>4</border>
                   </object>
-                  <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
-                  <border>4</border>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxTextCtrl" name="txtMaxColSize">
-                    <value>256</value>
+                  <object class="sizeritem">
+                    <object class="wxStaticText" name="lblMaxColSize">
+                      <label>Max. characters per column</label>
+                    </object>
+                    <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                    <border>4</border>
                   </object>
-                  <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
-                  <border>4</border>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxStaticText" name="stIndent">
-                    <label>Indent characters</label>
+                  <object class="sizeritem">
+                    <object class="wxTextCtrl" name="txtMaxColSize">
+                      <value>256</value>
+                    </object>
+                    <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                    <border>4</border>
                   </object>
-                  <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
-                  <border>4</border>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxTextCtrl" name="txtIndent"/>
-                  <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
-                  <border>4</border>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxStaticText" name="stSpacesForTabs">
-                    <label>Use spaces instead of tabs</label>
+                  <object class="sizeritem">
+                    <object class="wxStaticText" name="stIndent">
+                      <label>Indent characters</label>
+                    </object>
+                    <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                    <border>4</border>
                   </object>
-                  <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
-                  <border>4</border>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxCheckBox" name="chkSpacesForTabs">
-                    <label></label>
-                    <style></style>
+                  <object class="sizeritem">
+                    <object class="wxTextCtrl" name="txtIndent"/>
+                    <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                    <border>4</border>
                   </object>
-                  <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
-                  <border>4</border>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxStaticText" name="stStickySql">
-                    <label>Copy SQL from main window to query tool</label>
+                  <object class="sizeritem">
+                    <object class="wxStaticText" name="stSpacesForTabs">
+                      <label>Use spaces instead of tabs</label>
+                    </object>
+                    <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                    <border>4</border>
                   </object>
-                  <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
-                  <border>4</border>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxCheckBox" name="chkStickySql">
-                    <label></label>
-                    <checked>1</checked>
+                  <object class="sizeritem">
+                    <object class="wxCheckBox" name="chkSpacesForTabs">
+                      <label></label>
+                      <style></style>
+                    </object>
+                    <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                    <border>4</border>
                   </object>
-                  <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
-                  <border>4</border>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxStaticText" name="stAutoRollback">
-                    <label>Enable Auto ROLLBACK</label>
+                  <object class="sizeritem">
+                    <object class="wxStaticText" name="stStickySql">
+                      <label>Copy SQL from main window to query tool</label>
+                    </object>
+                    <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                    <border>4</border>
                   </object>
-                  <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
-                  <border>4</border>
-                </object>
-                <object class="sizeritem">
-                  <object class="wxCheckBox" name="chkAutoRollback">
-                    <label></label>
-                    <checked>0</checked>
+                  <object class="sizeritem">
+                    <object class="wxCheckBox" name="chkStickySql">
+                      <label></label>
+                      <checked>1</checked>
+                    </object>
+                    <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                    <border>4</border>
                   </object>
-                  <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
-                  <border>4</border>
-                </object>
+                  <object class="sizeritem">
+                    <object class="wxStaticText" name="stAutoRollback">
+                      <label>Enable Auto ROLLBACK</label>
+                    </object>
+                    <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                    <border>4</border>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxCheckBox" name="chkAutoRollback">
+                      <label></label>
+                      <checked>0</checked>
+                    </object>
+                    <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                    <border>4</border>
+                  </object>
                   <object class="sizeritem">
                     <object class="wxStaticText" name="stKeywordInUppercase">
                       <label>Keywords in uppercase</label>
@@ -502,7 +502,23 @@
                     </object>
                     <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
                     <border>4</border>
-                  </object>                  
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxStaticText" name="stExtFormatCmd">
+                      <label>External formatting utlity</label>
+                    </object>
+                    <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                    <border>4</border>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxFilePickerCtrl" name="pickerExtFormatCmd">
+                      <message>Select utility to format text</message>
+                      <style>wxFLP_OPEN|wxFLP_USE_TEXTCTRL</style>
+                      <tooltip>A command line utility which reads STDIN and directs output to STDOUT.</tooltip>
+                    </object>
+                    <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                    <border>4</border>
+                  </object>
                 </object>
               </object>
               <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
@@ -900,7 +916,7 @@
                   </object>
                   <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
                   <border>4</border>
-                </object>                  
+                </object>
                 </object>
               </object>
               <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>

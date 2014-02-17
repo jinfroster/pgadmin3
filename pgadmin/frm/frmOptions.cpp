@@ -105,6 +105,7 @@
 #define pickerFavouritesFile        CTRL_FILEPICKER("pickerFavouritesFile")
 #define pickerMacrosFile               CTRL_FILEPICKER("pickerMacrosFile")
 #define pickerHistoryFile              CTRL_FILEPICKER("pickerHistoryFile")
+#define pickerExtFormatCmd          CTRL_FILEPICKER("pickerExtFormatCmd")
 #define txtHistoryMaxQueries        CTRL_TEXT("txtHistoryMaxQueries")
 #define txtHistoryMaxQuerySize      CTRL_TEXT("txtHistoryMaxQuerySize")
 #define chkSQLUseSystemBackgroundColour  CTRL_CHECKBOX("chkSQLUseSystemBackgroundColour")
@@ -332,6 +333,7 @@ frmOptions::frmOptions(frmMain *parent)
 	pickerFavouritesFile->SetPath(settings->GetFavouritesFile());
 	pickerMacrosFile->SetPath(settings->GetMacrosFile());
 	pickerHistoryFile->SetPath(settings->GetHistoryFile());
+	pickerExtFormatCmd->SetPath(settings->GetExtFormatCmd());
 
 	txtHistoryMaxQueries->SetValue(NumToStr(settings->GetHistoryMaxQueries()));
 	txtHistoryMaxQuerySize->SetValue(NumToStr(settings->GetHistoryMaxQuerySize()));
@@ -783,6 +785,7 @@ void frmOptions::OnOK(wxCommandEvent &ev)
 	settings->SetFavouritesFile(pickerFavouritesFile->GetPath());
 	settings->SetMacrosFile(pickerMacrosFile->GetPath());
 	settings->SetHistoryFile(pickerHistoryFile->GetPath());
+	settings->SetExtFormatCmd(pickerExtFormatCmd->GetPath());
 
 	// Change SQL Syntax colours
 	if (settings->GetSQLBoxUseSystemBackground() != chkSQLUseSystemBackgroundColour->GetValue())
@@ -1037,10 +1040,10 @@ wxTreeItemId frmOptions::GetTreeItemByLabel(const wxTreeItemId& root, const wxSt
 		return notfound;
 
 	child = menus->GetFirstChild(root, cookie);
-	while (child.IsOk()) 
+	while (child.IsOk())
 	{
 		child = GetTreeItemByLabel(child, label);
-		if (child.IsOk()) 
+		if (child.IsOk())
 			return child;
 		child = menus->GetNextChild(root, cookie);
 	}

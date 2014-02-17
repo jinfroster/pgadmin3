@@ -214,6 +214,7 @@ private:
 	void OnChangeToLowerCase(wxCommandEvent &event);
 	void OnCommentText(wxCommandEvent &event);
 	void OnUncommentText(wxCommandEvent &event);
+	void OnExternalFormat(wxCommandEvent &event);
 
 	void OnDeleteCurrent(wxCommandEvent &event);
 	void OnDeleteAll(wxCommandEvent &event);
