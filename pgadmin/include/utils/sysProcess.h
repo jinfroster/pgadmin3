@@ -14,6 +14,7 @@
 
 #include <wx/wx.h>
 #include "wx/process.h"
+#include <wx/txtstrm.h>
 
 class sysProcess : public wxProcess
 {

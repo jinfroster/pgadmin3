@@ -21,6 +21,7 @@
 #include "ctl/ctlSQLBox.h"
 #include "dlg/dlgFindReplace.h"
 #include "frm/menu.h"
+#include "utils/sysProcess.h"
 
 // Must be last for reasons I haven't fully grokked...
 #include <wx/regex.h>
