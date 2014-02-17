@@ -399,7 +399,7 @@ void ctlSQLGrid::OnLabelClick(wxGridEvent &event)
 	int row = event.GetRow();
 	int col = event.GetCol();
 
-	// add support for deselecting rows and cols with Control pressed
+	// add support for (de)selecting multiple rows and cols with Control pressed
 	if ( row >= 0 && (event.ControlDown() || event.CmdDown()) )
 	{
 		if (GetSelectedRows().Index(row) == wxNOT_FOUND)
