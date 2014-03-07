@@ -166,7 +166,7 @@ frmEditGrid::frmEditGrid(frmMain *form, const wxString &_title, pgConn *_conn, p
 	fileMenu = new wxMenu();
 	fileMenu->Append(MNU_SAVE, _("&Save"), _("Save the changed row."));
 	fileMenu->AppendSeparator();
-	fileMenu->Append(MNU_CLOSE, _("&Close"), _("Close this window."));
+	fileMenu->Append(MNU_CLOSE, _("&Close\tCtrl-W"), _("Close this window."));
 	fileMenu->Enable(MNU_SAVE, false);
 
 	// Edit menu
@@ -1482,7 +1482,7 @@ void frmEditGrid::Go()
 	// they are suppressed initially. Win32 won't need this.
 	// !!! This hack breaks columns auto-sizing ( GetClientSize().GetWidth() is used in ctlSQLGrid::AutoSizeColumns() )
 	// !!! Is it still required?
-	//sqlGrid->SetSize(10, 10); 
+	//sqlGrid->SetSize(10, 10);
 
 	sqlGrid->SetTable(new sqlTable(connection, thread, tableName, relid, hasOids, primaryKeyColNumbers, relkind), true);
 	sqlGrid->AutoSizeColumns(false);
@@ -2141,7 +2141,7 @@ void sqlGridBoolEditor::BeginEdit(int row, int col, wxGrid *grid)
 				grid->GetTable()->SetValue(row, col, wxEmptyString);\
 				break;\
 }\
- 
+
 #if wxCHECK_VERSION(2, 9, 0)
 // pure virtual in 2.9+, doesn't exist in prior versions
 void sqlGridBoolEditor::ApplyEdit(int row, int col, wxGrid *grid)
