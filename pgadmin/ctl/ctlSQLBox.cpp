@@ -446,10 +446,7 @@ void ctlSQLBox::OnKeyDown(wxKeyEvent &event)
 	}
 	else if (m_dlgFindReplace && event.GetKeyCode() == WXK_F3)
 	{
-		if (event.GetModifiers() == wxMOD_SHIFT)
-			m_dlgFindReplace->FindNext(false);
-		else
-			m_dlgFindReplace->FindNext(true);
+		m_dlgFindReplace->FindNext();
 	}
 	else
 		event.Skip();

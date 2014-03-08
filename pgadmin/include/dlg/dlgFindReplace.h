@@ -23,7 +23,7 @@ public:
 	dlgFindReplace(ctlSQLBox *parent);
 	~dlgFindReplace();
 	void FocusSearch();
-	void FindNext(bool directionForward = true);
+	void FindNext();
 	void SetFindString(const wxString &val);
 
 private:
