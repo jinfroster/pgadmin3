@@ -141,8 +141,8 @@
 							<orient>wxVERTICAL</orient>
 							<object class="sizeritem">
 								<option>0</option>
-								<flag>wxALL</flag>
-								<border>5</border>
+								<flag>wxLEFT|wxTOP</flag>
+								<border>3</border>
 								<object class="wxCheckBox" name="chkNames">
 									<label>names</label>
 									<checked>1</checked>
@@ -150,8 +150,8 @@
 							</object>
 							<object class="sizeritem">
 								<option>0</option>
-								<flag>wxALL</flag>
-								<border>5</border>
+								<flag>wxLEFT|wxTOP</flag>
+								<border>3</border>
 								<object class="wxCheckBox" name="chkDefinitions">
 									<label>definitions</label>
 									<checked>0</checked>
@@ -159,8 +159,8 @@
 							</object>
 							<object class="sizeritem">
 								<option>0</option>
-								<flag>wxALL</flag>
-								<border>5</border>
+								<flag>wxLEFT|wxTOP</flag>
+								<border>3</border>
 								<object class="wxCheckBox" name="chkComments">
 									<label>comments</label>
 									<checked>0</checked>
