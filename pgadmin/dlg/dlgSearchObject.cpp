@@ -22,19 +22,26 @@
 #include "ctl/ctlListView.h"
 
 #define txtPattern        CTRL_TEXT("txtPattern")
-#define cbType          CTRL_COMBOBOX("cbType")
+#define cbType            CTRL_COMBOBOX("cbType")
+#define cbSchema          CTRL_COMBOBOX("cbSchema")
 #define lcResults         CTRL_LISTCTRL("lcResults")
-#define btnSearch             CTRL_BUTTON("btnSearch")
+#define btnSearch         CTRL_BUTTON("btnSearch")
+#define chkNames          CTRL_CHECKBOX("chkNames")
+#define chkDefinitions    CTRL_CHECKBOX("chkDefinitions")
+#define chkComments       CTRL_CHECKBOX("chkComments")
 
 BEGIN_EVENT_TABLE(dlgSearchObject, pgDialog)
 	EVT_BUTTON(wxID_HELP,                      dlgSearchObject::OnHelp)
-	EVT_BUTTON(XRCID("btnSearch"),			   dlgSearchObject::OnSearch)
+	EVT_BUTTON(XRCID("btnSearch"),             dlgSearchObject::OnSearch)
 	EVT_BUTTON(wxID_CANCEL,                    dlgSearchObject::OnCancel)
 	EVT_TEXT(XRCID("txtPattern"),              dlgSearchObject::OnChange)
 	EVT_LIST_ITEM_SELECTED(XRCID("lcResults"), dlgSearchObject::OnSelSearchResult)
+	EVT_CHECKBOX(XRCID("chkNames"),            dlgSearchObject::OnChange)
+	EVT_CHECKBOX(XRCID("chkDefinitions"),      dlgSearchObject::OnChange)
+	EVT_CHECKBOX(XRCID("chkComments"),         dlgSearchObject::OnChange)
 END_EVENT_TABLE()
 
-dlgSearchObject::dlgSearchObject(frmMain *p, pgDatabase *db, const wxChar *defaultType)
+dlgSearchObject::dlgSearchObject(frmMain *p, pgDatabase *db, pgObject *obj)
 {
 	parent = p;
 	header = wxT("");
@@ -136,10 +143,30 @@ dlgSearchObject::dlgSearchObject(frmMain *p, pgDatabase *db, const wxChar *defau
 		cbType->Append(_("Collations"));
 	}
 
-	int typeIndex = cbType->FindString(defaultType);
-	if(typeIndex == wxNOT_FOUND)
-		typeIndex = 0;
-	cbType->SetSelection(typeIndex);
+	cbType->SetSelection(0);
+
+	cbSchema->Clear();
+	cbSchema->Append(_("All schemas"));
+	cbSchema->Append(_("User schemas"));
+
+	if (obj->GetSchema() || obj->GetMetaType() == PGM_SCHEMA)
+		cbSchema->Append(_("Current schema ")); // obj->GetSchema()->GetName()
+/*
+	pgSet *set = currentdb->GetConnection()->ExecuteSet(searchSQL);
+	int i = 0;
+	if(set)
+	{
+		lcResults->DeleteAllItems();
+
+		while(!set->Eof())
+		{
+			 = set->GetVal(wxT("type"));
+			set->MoveNext();
+			i++;
+		}
+		delete set;*/
+
+	cbSchema->SetSelection(0);
 
 	txtPattern->SetFocus();
 }
@@ -197,9 +224,14 @@ void dlgSearchObject::OnChange(wxCommandEvent &ev)
 
 void dlgSearchObject::ToggleBtnSearch(bool enable)
 {
-	/* When someone searches for operators, the limit of 3 characters is ignored */
-	if(enable && (aMap[cbType->GetValue()] == wxT("Operators") || txtPattern->GetValue().Length() >= 3))
+	if(enable &&
+	   /* When someone searches for operators, the limit of 3 characters is ignored */
+	   (aMap[cbType->GetValue()] == wxT("Operators") || txtPattern->GetValue().Length() >= 3) &&
+	   // At least one search mode enabled
+	   (chkNames->GetValue() || chkDefinitions->GetValue() || chkComments->GetValue()))
+	{
 		btnSearch->Enable();
+	}
 	else
 		btnSearch->Disable();
 }
@@ -515,47 +547,7 @@ searchObjectFactory::searchObjectFactory(menuFactoryList *list, wxMenu *mnu, ctl
 
 wxWindow *searchObjectFactory::StartDialog(frmMain *form, pgObject *obj)
 {
-	const wxChar *objType;
-	switch (obj->GetMetaType())
-	{
-		case PGM_TABLE:
-			objType = _("Tables");
-			break;
-		case PGM_COLUMN:
-			objType = _("Columns");
-			break;
-		case PGM_TRIGGER:
-			objType = _("Triggers");
-			break;
-		case PGM_VIEW:
-			objType = _("Views");
-			break;
-		case PGM_RULE:
-			objType = _("Rules");
-			break;
-		case PGM_INDEX:
-			objType = _("Indexes");
-			break;
-		case PGM_FUNCTION:
-			objType = _("Functions");
-			break;
-		case PGM_CONSTRAINT:
-			objType = _("Constraints");
-			break;
-		case PGM_SEQUENCE:
-			objType = _("Sequences");
-			break;
-		case PGM_DOMAIN:
-			objType = _("Domains");
-			break;
-		case PGM_FOREIGNTABLE:
-			objType = _("Foreign Tables");
-			break;
-		default:
-			objType = _("All types");
-		break;
-	}
-	dlgSearchObject *so = new dlgSearchObject(form, obj->GetDatabase(), objType);
+	dlgSearchObject *so = new dlgSearchObject(form, obj->GetDatabase(), obj);
 	so->Show();
 	return 0;
 }

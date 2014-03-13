@@ -16,12 +16,14 @@
 #include "ctl/ctlListView.h"
 #include "schema/pgDatabase.h"
 #include "utils/sysSettings.h"
+#include "dlg/dlgProperty.h"
+
 
 // Class declarations
 class dlgSearchObject : public pgDialog
 {
 public:
-	dlgSearchObject(frmMain *p, pgDatabase *db, const wxChar *defaultType = _("All types"));
+	dlgSearchObject(frmMain *p, pgDatabase *db, pgObject *obj);
 	~dlgSearchObject();
 
 private:
