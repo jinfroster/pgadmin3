@@ -147,24 +147,43 @@ dlgSearchObject::dlgSearchObject(frmMain *p, pgDatabase *db, pgObject *obj)
 
 	cbSchema->Clear();
 	cbSchema->Append(_("All schemas"));
-	cbSchema->Append(_("User schemas"));
+	cbSchema->Append(_("My schemas"));
 
-	if (obj->GetSchema() || obj->GetMetaType() == PGM_SCHEMA)
-		cbSchema->Append(_("Current schema ")); // obj->GetSchema()->GetName()
-/*
-	pgSet *set = currentdb->GetConnection()->ExecuteSet(searchSQL);
+	if (obj->GetSchema())
+		currentSchema = obj->GetSchema()->GetName();
+	else if (obj->GetMetaType() == PGM_SCHEMA && !obj->IsCollection())
+		currentSchema = obj->GetName();
+	else
+		currentSchema = wxEmptyString;
+
+	if (!currentSchema.IsEmpty())
+		cbSchema->Append(_("Current schema"));
+
+	wxString sql;
+
+	sql = wxT("SELECT nsp.nspname, nsp.oid, pg_get_userbyid(nspowner) AS namespaceowner")
+	      wxT("  FROM pg_namespace nsp\n");
+	if (!settings->GetShowSystemObjects())
+	{
+		if (currentdb->BackendMinimumVersion(8, 1))
+			sql += wxT(" WHERE nspname NOT LIKE E'pg\\\\_temp\\\\_%' AND nspname NOT LIKE E'pg\\\\_toast%'");
+		else
+			sql += wxT(" WHERE nspname NOT LIKE 'pg\\\\_temp\\\\_%' AND nspname NOT LIKE 'pg\\\\_toast%'");
+	}
+	sql += wxT(" ORDER BY nspname");
+
+	pgSet *set = currentdb->GetConnection()->ExecuteSet(sql);
 	int i = 0;
 	if(set)
 	{
-		lcResults->DeleteAllItems();
-
 		while(!set->Eof())
 		{
-			 = set->GetVal(wxT("type"));
+			cbSchema->Append(set->GetVal(wxT("nspname")));
 			set->MoveNext();
 			i++;
 		}
-		delete set;*/
+		delete set;
+	}
 
 	cbSchema->SetSelection(0);
 
@@ -265,12 +284,12 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 	                     wxT("		WHEN c.relkind = 'S' THEN ':Sequences'   ")
 	                     wxT("		WHEN c.relkind = 'v' THEN ':Views'   ")
 	                     wxT("		ELSE 'should not happen'   ")
-	                     wxT("	END || '/' || c.relname AS path  ")
+	                     wxT("	END || '/' || c.relname AS path, n.nspname  ")
 	                     wxT("	FROM pg_class c  ")
 	                     wxT("	LEFT JOIN pg_namespace n ON n.oid = c.relnamespace     ")
 	                     wxT("	WHERE c.relkind in ('r','S','v')  ")
 	                     wxT("	UNION  ")
-	                     wxT("	SELECT 'Indexes', cls.relname, ':Schemas/' || n.nspname || '/:Tables/' || tab.relname || '/:Indexes/' || cls.relname ")
+	                     wxT("	SELECT 'Indexes', cls.relname, ':Schemas/' || n.nspname || '/:Tables/' || tab.relname || '/:Indexes/' || cls.relname, n.nspname ")
 	                     wxT("	FROM pg_index idx ")
 	                     wxT("	JOIN pg_class cls ON cls.oid=indexrelid ")
 	                     wxT("	JOIN pg_class tab ON tab.oid=indrelid ")
@@ -282,12 +301,12 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 	                     wxT("	WHERE contype IS NULL ")
 	                     wxT("	UNION  ")
 	                     wxT("	SELECT CASE WHEN t.typname = 'trigger' THEN 'Trigger Functions' ELSE 'Functions' END AS type, p.proname,  ")
-	                     wxT("	':Schemas/' || n.nspname || '/' || case when t.typname = 'trigger' then ':Trigger Functions' else ':Functions' end || '/' || p.proname ")
+	                     wxT("	':Schemas/' || n.nspname || '/' || case when t.typname = 'trigger' then ':Trigger Functions' else ':Functions' end || '/' || p.proname, n.nspname ")
 	                     wxT("	from pg_proc p  ")
 	                     wxT("	left join pg_namespace n on p.pronamespace = n.oid  ")
 	                     wxT("	left join pg_type t on p.prorettype = t.oid  ")
 	                     wxT("	union  ")
-	                     wxT("	select 'Schemas', nspname, ':Schemas/' || nspname from pg_namespace  ")
+	                     wxT("	select 'Schemas', nspname, ':Schemas/' || nspname, nspname from pg_namespace  ")
 	                     wxT("	union  ")
 	                     wxT("	select 'Columns', a.attname,  ")
 	                     wxT("	':Schemas/' || n.nspname || '/' ||  ")
@@ -296,21 +315,21 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 	                     wxT("		when t.relkind = 'S' then ':Sequences'   ")
 	                     wxT("		when t.relkind = 'v' then ':Views'   ")
 	                     wxT("		else 'should not happen'   ")
-	                     wxT("	end || '/' || t.relname || '/:Columns/' || a.attname AS path  ")
+	                     wxT("	end || '/' || t.relname || '/:Columns/' || a.attname AS path, n.nspname  ")
 	                     wxT("	from pg_attribute a  ")
 	                     wxT("	inner join pg_class t on a.attrelid = t.oid and t.relkind in ('r','v')  ")
 	                     wxT("	left join pg_namespace n on t.relnamespace = n.oid where a.attnum > 0  ")
 	                     wxT("	union  ")
-	                     wxT("	select 'Constraints', case when tf.relname is null then c.conname else c.conname || ' -> ' || tf.relname end, ':Schemas/' || n.nspname||'/:Tables/'||t.relname||'/:Constraints/'||case when tf.relname is null then c.conname else c.conname || ' -> ' || tf.relname end from pg_constraint c    ")
+	                     wxT("	select 'Constraints', case when tf.relname is null then c.conname else c.conname || ' -> ' || tf.relname end, ':Schemas/' || n.nspname||'/:Tables/'||t.relname||'/:Constraints/'||case when tf.relname is null then c.conname else c.conname || ' -> ' || tf.relname end, n.nspname from pg_constraint c    ")
 	                     wxT("	left join pg_class t on c.conrelid = t.oid  ")
 	                     wxT("	left join pg_class tf on c.confrelid = tf.oid  ")
 	                     wxT("	left join pg_namespace n on t.relnamespace = n.oid 						 ")
 	                     wxT("	union  ")
-	                     wxT("	select 'Rules', r.rulename, ':Schemas/' || n.nspname||case when t.relkind = 'v' then '/:Views/' else '/:Tables/' end||t.relname||'/:Rules/'|| r.rulename from pg_rewrite r  ")
+	                     wxT("	select 'Rules', r.rulename, ':Schemas/' || n.nspname||case when t.relkind = 'v' then '/:Views/' else '/:Tables/' end||t.relname||'/:Rules/'|| r.rulename, n.nspname from pg_rewrite r  ")
 	                     wxT("	left join pg_class t on r.ev_class = t.oid  ")
 	                     wxT("	left join pg_namespace n on t.relnamespace = n.oid 						 ")
 	                     wxT("	union  ")
-	                     wxT("	select 'Triggers', tr.tgname, ':Schemas/' || n.nspname||case when t.relkind = 'v' then '/:Views/' else '/:Tables/' end||t.relname || '/:Triggers/' || tr.tgname from pg_trigger tr  ")
+	                     wxT("	select 'Triggers', tr.tgname, ':Schemas/' || n.nspname||case when t.relkind = 'v' then '/:Views/' else '/:Tables/' end||t.relname || '/:Triggers/' || tr.tgname, n.nspname from pg_trigger tr  ")
 	                     wxT("	left join pg_class t on tr.tgrelid = t.oid  ")
 	                     wxT("	left join pg_namespace n on t.relnamespace = n.oid  ")
 	                     wxT("	where ");
@@ -323,65 +342,65 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		searchSQL += wxT(" tr.tgisconstraint = false ");
 	}
 	searchSQL += wxT("	union ")
-	             wxT("	SELECT 'Types', t.typname, ':Schemas/' || n.nspname || '/:Types' || t.typname ")
+	             wxT("	SELECT 'Types', t.typname, ':Schemas/' || n.nspname || '/:Types' || t.typname, n.nspname ")
 	             wxT("	FROM pg_type t ")
 	             wxT("	LEFT OUTER JOIN pg_type e ON e.oid=t.typelem ")
 	             wxT("	LEFT OUTER JOIN pg_class ct ON ct.oid=t.typrelid AND ct.relkind <> 'c' ")
 	             wxT("	LEFT OUTER JOIN pg_namespace n on t.typnamespace = n.oid ")
 	             wxT("	WHERE t.typtype != 'd' AND t.typname NOT LIKE E'\\_%' 	 ")
 	             wxT("	union ")
-	             wxT("	SELECT 'Conversions', co.conname, ':Schemas/' || n.nspname || '/:Conversions/' || co.conname ")
+	             wxT("	SELECT 'Conversions', co.conname, ':Schemas/' || n.nspname || '/:Conversions/' || co.conname, n.nspname ")
 	             wxT("	FROM pg_conversion co ")
 	             wxT("	JOIN pg_namespace n ON n.oid=co.connamespace ")
 	             wxT("	LEFT OUTER JOIN pg_description des ON des.objoid=co.oid AND des.objsubid=0	 ")
 	             wxT("	union ")
-	             wxT("	SELECT 'Casts', format_type(st.oid,NULL) ||'->'|| format_type(tt.oid,tt.typtypmod), ':Casts/' || format_type(st.oid,NULL) ||'->'|| format_type(tt.oid,tt.typtypmod) ")
+	             wxT("	SELECT 'Casts', format_type(st.oid,NULL) ||'->'|| format_type(tt.oid,tt.typtypmod), ':Casts/' || format_type(st.oid,NULL) ||'->'|| format_type(tt.oid,tt.typtypmod), NULL as nspname ")
 	             wxT("	FROM pg_cast ca ")
 	             wxT("	JOIN pg_type st ON st.oid=castsource ")
 	             wxT("	JOIN pg_type tt ON tt.oid=casttarget ")
 	             wxT("	union ")
-	             wxT("	SELECT 'Languages', lanname, ':Languages/' || lanname ")
+	             wxT("	SELECT 'Languages', lanname, ':Languages/' || lanname, NULL as nspname ")
 	             wxT("	FROM pg_language lan ")
 	             wxT("	WHERE lanispl IS TRUE ")
 	             wxT("	union ")
-	             wxT("	SELECT 'FTS Configurations', cfg.cfgname, ':Schemas/' || n.nspname || '/:FTS Configurations/' || cfg.cfgname ")
+	             wxT("	SELECT 'FTS Configurations', cfg.cfgname, ':Schemas/' || n.nspname || '/:FTS Configurations/' || cfg.cfgname, n.nspname ")
 	             wxT("	FROM pg_ts_config cfg ")
 	             wxT("	left join pg_namespace n on cfg.cfgnamespace = n.oid	 ")
 	             wxT("	union ")
-	             wxT("	SELECT 'FTS Dictionaries', dict.dictname, ':Schemas/' || ns.nspname || '/:FTS Dictionaries/' || dict.dictname ")
+	             wxT("	SELECT 'FTS Dictionaries', dict.dictname, ':Schemas/' || ns.nspname || '/:FTS Dictionaries/' || dict.dictname, ns.nspname ")
 	             wxT("	FROM pg_ts_dict dict ")
 	             wxT("	left join pg_namespace ns on dict.dictnamespace = ns.oid ")
 	             wxT("	union ")
-	             wxT("	SELECT 'FTS Parsers', prs.prsname, ':Schemas/' || ns.nspname || '/:FTS Parsers/' || prs.prsname ")
+	             wxT("	SELECT 'FTS Parsers', prs.prsname, ':Schemas/' || ns.nspname || '/:FTS Parsers/' || prs.prsname, ns.nspname ")
 	             wxT("	FROM pg_ts_parser prs ")
 	             wxT("	left join pg_namespace ns on prs.prsnamespace = ns.oid ")
 	             wxT("	union ")
-	             wxT("	SELECT 'FTS Templates', tmpl.tmplname, ':Schemas/' || ns.nspname || '/:FTS Templates/' || tmpl.tmplname ")
+	             wxT("	SELECT 'FTS Templates', tmpl.tmplname, ':Schemas/' || ns.nspname || '/:FTS Templates/' || tmpl.tmplname, ns.nspname ")
 	             wxT("	FROM pg_ts_template tmpl ")
 	             wxT("	left join pg_namespace ns on tmpl.tmplnamespace = ns.oid ")
 	             wxT("	union ")
-	             wxT("	select 'Domains', t.typname, ':Schemas/' || n.nspname || '/:Domains/' || t.typname from pg_type t  ")
+	             wxT("	select 'Domains', t.typname, ':Schemas/' || n.nspname || '/:Domains/' || t.typname, n.nspname from pg_type t  ")
 	             wxT("	inner join pg_namespace n on t.typnamespace = n.oid ")
 	             wxT("	where t.typtype = 'd' ")
 	             wxT("	union ")
-	             wxT("	select 'Aggregates', pr.proname, ':Schemas/' || ns.nspname || '/:Aggregates/' || pr.proname from pg_catalog.pg_aggregate ag ")
+	             wxT("	select 'Aggregates', pr.proname, ':Schemas/' || ns.nspname || '/:Aggregates/' || pr.proname , ns.nspname from pg_catalog.pg_aggregate ag ")
 	             wxT("	inner join pg_proc pr on ag.aggfnoid = pr.oid ")
 	             wxT("	left join pg_namespace ns on  pr.pronamespace = ns.oid ")
 	             wxT("	union ")
-	             wxT("	select case when rolcanlogin = true then 'Login Roles' else 'Group Roles' end, rolname, case when rolcanlogin = true then ':Login Roles' else ':Group Roles' end || '/' || rolname ")
+	             wxT("	select case when rolcanlogin = true then 'Login Roles' else 'Group Roles' end, rolname, case when rolcanlogin = true then ':Login Roles' else ':Group Roles' end || '/' || rolname, NULL as nspname ")
 	             wxT("	from pg_roles ")
 	             wxT("	union ")
-	             wxT("	select 'Tablespaces', spcname, ':Tablespaces/'||spcname from pg_tablespace ")
+	             wxT("	select 'Tablespaces', spcname, ':Tablespaces/'||spcname, NULL as nspname from pg_tablespace ")
 	             wxT("	union ")
-	             wxT("	SELECT 'Operators', op.oprname, ':Schemas/' || ns.nspname || '/:Operators/' || op.oprname ")
+	             wxT("	SELECT 'Operators', op.oprname, ':Schemas/' || ns.nspname || '/:Operators/' || op.oprname, ns.nspname ")
 	             wxT("	FROM pg_operator op ")
 	             wxT("	left join pg_namespace ns on op.oprnamespace = ns.oid ")
 	             wxT("	union ")
-	             wxT("	SELECT 'Operator Classes', op.opcname, ':Schemas/' || ns.nspname || '/:Operator Classes/' || op.opcname ")
+	             wxT("	SELECT 'Operator Classes', op.opcname, ':Schemas/' || ns.nspname || '/:Operator Classes/' || op.opcname, ns.nspname ")
 	             wxT("	FROM pg_opclass op ")
 	             wxT("	left join pg_namespace ns on op.opcnamespace = ns.oid ")
 	             wxT("	union ")
-	             wxT("	SELECT 'Operator Families', opf.opfname, ':Schemas/' || ns.nspname || '/:Operator Families/' || opf.opfname ")
+	             wxT("	SELECT 'Operator Families', opf.opfname, ':Schemas/' || ns.nspname || '/:Operator Families/' || opf.opfname, ns.nspname ")
 	             wxT("	FROM pg_opfamily opf ")
 	             wxT("	left join pg_namespace ns on opf.opfnamespace = ns.oid ");
 
@@ -389,12 +408,12 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 	if(currentdb->BackendMinimumVersion(8, 4) && currentdb->GetConnection()->IsSuperuser())
 	{
 		searchSQL += wxT("	union ")
-		             wxT("	select 'Foreign Data Wrappers', fdwname, ':Foreign Data Wrappers/' || fdwname from pg_foreign_data_wrapper ")
+		             wxT("	select 'Foreign Data Wrappers', fdwname, ':Foreign Data Wrappers/' || fdwname, NULL as nspname from pg_foreign_data_wrapper ")
 		             wxT("	union ")
-		             wxT("	select 'Foreign Server', sr.srvname, ':Foreign Data Wrappers/' || fdw.fdwname || '/:Foreign Servers/' || sr.srvname from pg_foreign_server sr ")
+		             wxT("	select 'Foreign Server', sr.srvname, ':Foreign Data Wrappers/' || fdw.fdwname || '/:Foreign Servers/' || sr.srvname, NULL as nspname from pg_foreign_server sr ")
 		             wxT("	inner join pg_foreign_data_wrapper fdw on sr.srvfdw = fdw.oid ")
 		             wxT("	union ")
-		             wxT("	select 'User Mappings', ro.rolname, ':Foreign Data Wrappers/' || fdw.fdwname || '/:Foreign Servers/' || sr.srvname || '/:User Mappings/' || ro.rolname from pg_user_mapping um ")
+		             wxT("	select 'User Mappings', ro.rolname, ':Foreign Data Wrappers/' || fdw.fdwname || '/:Foreign Servers/' || sr.srvname || '/:User Mappings/' || ro.rolname, NULL as nspname from pg_user_mapping um ")
 		             wxT("	inner join pg_roles ro on um.umuser = ro.oid ")
 		             wxT("	inner join pg_foreign_server sr on um.umserver = sr.oid ")
 		             wxT("	inner join pg_foreign_data_wrapper fdw on sr.srvfdw = fdw.oid ");
@@ -403,16 +422,16 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 	if(currentdb->BackendMinimumVersion(9, 1))
 	{
 		searchSQL += wxT("	union ")
-		             wxT("	select 'Foreign Tables', c.relname, ':Schemas/' || ns.nspname || '/:Foreign Tables/' || c.relname from pg_foreign_table ft ")
+		             wxT("	select 'Foreign Tables', c.relname, ':Schemas/' || ns.nspname || '/:Foreign Tables/' || c.relname, ns.nspname from pg_foreign_table ft ")
 		             wxT("	inner join pg_class c on ft.ftrelid = c.oid ")
 		             wxT("	inner join pg_namespace ns on c.relnamespace = ns.oid ")
 		             wxT("	union ")
-		             wxT("	select 'Extensions', x.extname, ':Extensions/' || x.extname ")
+		             wxT("	select 'Extensions', x.extname, ':Extensions/' || x.extname, NULL as nspname ")
 		             wxT("	FROM pg_extension x	")
 		             wxT("	JOIN pg_namespace n on x.extnamespace=n.oid ")
 		             wxT("	join pg_available_extensions() e(name, default_version, comment) ON x.extname=e.name ")
 		             wxT("	union ")
-		             wxT("	SELECT 'Collations', c.collname, ':Schemas/' || n.nspname || '/:Collations/' || c.collname ")
+		             wxT("	SELECT 'Collations', c.collname, ':Schemas/' || n.nspname || '/:Collations/' || c.collname, n.nspname ")
 		             wxT("	FROM pg_collation c ")
 		             wxT("	JOIN pg_namespace n ON n.oid=c.collnamespace ");
 	}
@@ -422,6 +441,18 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 	if(cbType->GetValue() != _("All types"))
 	{
 		searchSQL += wxT("AND i.type = '") + aMap[cbType->GetValue()] + wxT("' ");
+	}
+	if(cbSchema->GetValue() == _("Current schema") && !currentSchema.IsEmpty())
+	{
+		searchSQL += wxT("AND i.nspname = '") + currentSchema + wxT("' ");
+	}
+	else if(cbSchema->GetValue() == _("My schemas"))
+	{
+		searchSQL += wxT("AND i.nspname IN (SELECT n.nspname FROM pg_namespace n WHERE n.nspowner = ") + qtIdent(currentdb->GetConnection()->GetUser()) + wxT(" )");
+	}
+	else if(cbSchema->GetValue() != _("All schemas"))
+	{
+		searchSQL += wxT("AND i.nspname = '") + cbSchema->GetValue() + wxT("' ");
 	}
 	searchSQL += wxT("ORDER BY 1, 2");
 

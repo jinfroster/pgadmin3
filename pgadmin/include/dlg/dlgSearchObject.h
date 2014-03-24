@@ -41,6 +41,7 @@ private:
 	frmMain *parent;
 	wxString header;
 	wxArrayString sectionName, sectionData, sectionTableHeader, sectionTableRows, sectionTableInfo, sectionSql;
+	wxString currentSchema;
 
 	DECLARE_EVENT_TABLE()
 };
