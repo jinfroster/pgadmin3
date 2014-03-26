@@ -42,6 +42,7 @@ private:
 	wxString header;
 	wxArrayString sectionName, sectionData, sectionTableHeader, sectionTableRows, sectionTableInfo, sectionSql;
 	wxString currentSchema;
+	int cbSchemaIdxCurrent;
 
 	DECLARE_EVENT_TABLE()
 };
