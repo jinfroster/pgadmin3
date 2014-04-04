@@ -147,7 +147,7 @@ BEGIN_EVENT_TABLE(frmQuery, pgFrame)
 	EVT_MENU(MNU_LOWER_CASE,        frmQuery::OnChangeToLowerCase)
 	EVT_MENU(MNU_COMMENT_TEXT,      frmQuery::OnCommentText)
 	EVT_MENU(MNU_UNCOMMENT_TEXT,    frmQuery::OnUncommentText)
-	EVT_MENU(MUN_EXTERNALFORMAT,    frmQuery::OnExternalFormat)
+	EVT_MENU(MNU_EXTERNALFORMAT,    frmQuery::OnExternalFormat)
 	EVT_MENU(MNU_LF,                frmQuery::OnSetEOLMode)
 	EVT_MENU(MNU_CRLF,              frmQuery::OnSetEOLMode)
 	EVT_MENU(MNU_CR,                frmQuery::OnSetEOLMode)
@@ -291,7 +291,7 @@ frmQuery::frmQuery(frmMain *form, const wxString &_title, pgConn *_conn, const w
 	formatMenu->Append(MNU_COMMENT_TEXT, _("Co&mment Text\tCtrl-K"), _("Comment out the selected text"));
 	formatMenu->Append(MNU_UNCOMMENT_TEXT, _("Uncomme&nt Text\tCtrl-Shift-K"), _("Uncomment the selected text"));
 	formatMenu->AppendSeparator();
-	formatMenu->Append(MUN_EXTERNALFORMAT, _("External Format\tCtrl-Shift-F"), _("Call external format tool"));
+	formatMenu->Append(MNU_EXTERNALFORMAT, _("External Format\tCtrl-Shift-F"), _("Call external format tool"));
 	editMenu->AppendSubMenu(formatMenu, _("F&ormat"));
 	editMenu->Append(MNU_LINEENDS, _("&Line ends"), lineEndMenu);
 
@@ -414,7 +414,6 @@ frmQuery::frmQuery(frmMain *form, const wxString &_title, pgConn *_conn, const w
 	toolBar->AddTool(MNU_COPY, wxEmptyString, *clip_copy_png_bmp, _("Copy selected text to clipboard"), wxITEM_NORMAL);
 	toolBar->AddTool(MNU_PASTE, wxEmptyString, *clip_paste_png_bmp, _("Paste selected text from clipboard"), wxITEM_NORMAL);
 	toolBar->AddTool(MNU_CLEAR, wxEmptyString, *edit_clear_png_bmp, _("Clear edit window"), wxITEM_NORMAL);
-	//toolBar->AddTool(MUN_EXTERNALFORMAT, wxEmptyString, *externalformat_png_bmp, _("Format using external tool"), wxITEM_NORMAL);
 	toolBar->AddSeparator();
 	toolBar->AddTool(MNU_UNDO, wxEmptyString, *edit_undo_png_bmp, _("Undo last action"), wxITEM_NORMAL);
 	toolBar->AddTool(MNU_REDO, wxEmptyString, *edit_redo_png_bmp, _("Redo last action"), wxITEM_NORMAL);
