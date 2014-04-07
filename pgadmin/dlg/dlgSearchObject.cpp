@@ -162,7 +162,7 @@ dlgSearchObject::dlgSearchObject(frmMain *p, pgDatabase *db, pgObject *obj)
 
 	wxString sql;
 
-	sql = wxT("SELECT nsp.nspname, nsp.oid, pg_get_userbyid(nspowner) AS namespaceowner")
+	sql = wxT("SELECT nsp.nspname")
 	      wxT("  FROM pg_namespace nsp\n");
 	if (!settings->GetShowSystemObjects())
 	{
@@ -174,14 +174,12 @@ dlgSearchObject::dlgSearchObject(frmMain *p, pgDatabase *db, pgObject *obj)
 	sql += wxT(" ORDER BY nspname");
 
 	pgSet *set = currentdb->GetConnection()->ExecuteSet(sql);
-	int i = 0;
 	if(set)
 	{
 		while(!set->Eof())
 		{
 			cbSchema->Append(set->GetVal(wxT("nspname")));
 			set->MoveNext();
-			i++;
 		}
 		delete set;
 	}
@@ -357,7 +355,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		else
 			searchSQL += wxT(" tr.tgisconstraint = false ");
 		searchSQL += wxT("	union ")
-		             wxT("	SELECT 'Types', t.typname, ':Schemas/' || n.nspname || '/:Types' || t.typname, n.nspname ")
+		             wxT("	SELECT 'Types', t.typname, ':Schemas/' || n.nspname || '/:Types/' || t.typname, n.nspname ")
 		             wxT("	FROM pg_type t ")
 		             wxT("	LEFT OUTER JOIN pg_type e ON e.oid=t.typelem ")
 		             wxT("	LEFT OUTER JOIN pg_class ct ON ct.oid=t.typrelid AND ct.relkind <> 'c' ")
@@ -578,7 +576,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		else
 			searchSQL += wxT(" tr.tgisconstraint = false ");
 		searchSQL += wxT("	union")
-		             wxT("	SELECT 'Types', t.typname, ':Schemas/' || n.nspname || '/:Types' || t.typname, n.nspname")
+		             wxT("	SELECT 'Types', t.typname, ':Schemas/' || n.nspname || '/:Types/' || t.typname, n.nspname")
 		             wxT("	FROM ") + pd +
 		             wxT("	JOIN pg_type t on pd.relname = 'pg_type' and pd.objoid = t.oid")
 		             wxT("	LEFT OUTER JOIN pg_type e ON e.oid=t.typelem")

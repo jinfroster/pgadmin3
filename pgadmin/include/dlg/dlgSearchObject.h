@@ -16,8 +16,7 @@
 #include "ctl/ctlListView.h"
 #include "schema/pgDatabase.h"
 #include "utils/sysSettings.h"
-#include "dlg/dlgProperty.h"
-
+#include "schema/pgSchema.h"
 
 // Class declarations
 class dlgSearchObject : public pgDialog
