@@ -49,6 +49,7 @@ dlgSearchObject::dlgSearchObject(frmMain *p, pgDatabase *db, pgObject *obj)
 
 	SetFont(settings->GetSystemFont());
 	LoadResource(p, wxT("dlgSearchObject"));
+	statusBar = XRCCTRL(*this, "unkStatusBar", wxStatusBar);
 
 	// Icon
 	appearanceFactory->SetIcons(this);
@@ -262,7 +263,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 
 	ToggleBtnSearch(false);
 	if (statusBar)
-		statusBar->SetStatusText(wxT("Searching..."));
+		statusBar->SetStatusText(_("Searching..."));
 
 	wxString txtPatternStr;
 	if (txtPattern->GetValue().Contains(wxT("%")))
@@ -810,7 +811,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		if (i > 0)
 			statusBar->SetStatusText(wxString::Format(wxPLURAL("Found %d item", "Found %d items",i), i));
 		else
-			statusBar->SetStatusText(wxString::Format(wxT("Nothing was found"), i));
+			statusBar->SetStatusText(_("Nothing was found"));
 
 	ToggleBtnSearch(true);
 }
