@@ -198,7 +198,6 @@ public:
 				wxSafeYield();                            // needed to process sqlQuery modify event
 				m_fquery->SetChanged(false);
 				m_fquery->SetOrigin(ORIGIN_FILE);
-				wxLogInfo(wxT("OnDropFiles"));
 				m_fquery->setExtendedTitle();
 				m_fquery->SetLineEndingStyle();
 				m_fquery->UpdateRecentFiles(true);
@@ -619,9 +618,9 @@ frmQuery::frmQuery(frmMain *form, const wxString &_title, pgConn *_conn, const w
 	else if (!query.IsNull()) {
 		sqlQuery->SetText(query);
 		sqlQuery->Colourise(0, query.Length());
+		wxSafeYield();                            // needed to process sqlQuery modify event
 		changed = false;
 		origin = ORIGIN_INITIAL;
-		wxLogInfo(wxT("frmQuery::frmQuery"));
 		setExtendedTitle();
 	}
 
@@ -1615,7 +1614,6 @@ void frmQuery::OnChangeConnection(wxCommandEvent &ev)
 		sqlResult->SetConnection(conn);
 		pgScript->SetConnection(conn);
 		title = wxT("Query - ") + cbConnection->GetValue();
-		wxLogInfo(wxT("OnChangeConnection"));
 		setExtendedTitle();
 
 		//Refresh GQB Tree if used
@@ -1966,7 +1964,6 @@ void frmQuery::OnRedo(wxCommandEvent &ev)
 
 void frmQuery::setExtendedTitle()
 {
-	wxLogInfo(wxT("changed=%d origin=%d"), changed, origin);
 	wxString chgStr;
 	if (changed)
 		chgStr = wxT(" *");
@@ -1977,8 +1974,8 @@ void frmQuery::setExtendedTitle()
 	{
 		SetTitle(title + wxT(" - [") + lastPath + wxT("]") + chgStr);
 	}
-
-	bool enableSave = changed || origin == ORIGIN_INITIAL;
+	// Allow to save initial queries though they are not changed
+	bool enableSave = changed || (origin == ORIGIN_INITIAL);
 	toolBar->EnableTool(MNU_SAVE, enableSave);
 	fileMenu->Enable(MNU_SAVE, enableSave);
 }
@@ -2168,7 +2165,6 @@ void frmQuery::OnSelectFavourite(wxCommandEvent &event)
 
 bool frmQuery::CheckChanged(bool canVeto)
 {
-	wxLogInfo(wxT("CheckChanged: changed=%d, origin=%d, canVeto=%d"), changed, origin, canVeto);
 	if (changed && settings->GetAskSaveConfirmation())
 	{
 		wxString fn;
@@ -2280,10 +2276,8 @@ void frmQuery::OnChangeStc(wxStyledTextEvent &event)
 		if (!changed)
 		{
 			changed = true;
-			wxLogInfo(wxT("OnChangeStc"));
 			setExtendedTitle();
 		}
-		wxLogInfo(wxT("onChangeStc changed=%d origin=%d"), changed, origin);
 	}
 	// do not allow update of model size of GQB on input (key press) of each
 	// character of the query in Query Tool
@@ -2325,7 +2319,6 @@ void frmQuery::OpenLastFile()
 		wxSafeYield();                            // needed to process sqlQuery modify event
 		changed = false;
 		origin = ORIGIN_FILE;
-		wxLogInfo(wxT("OpenLastFile"));
 		setExtendedTitle();
 		SetLineEndingStyle();
 		UpdateRecentFiles(true);
@@ -2393,8 +2386,6 @@ void frmQuery::OnSave(wxCommandEvent &event)
 			wxMessageBox(_("Query text incomplete.\nQuery contained characters that could not be converted to the local charset.\nPlease correct the data or try using UTF8 instead."));
 		file.Close();
 		changed = false;
-		//origin = ORIGIN_FILE;
-		wxLogInfo(wxT("OnSave"));
 		setExtendedTitle();
 		UpdateRecentFiles();
 	}
@@ -2425,7 +2416,6 @@ void frmQuery::SetLineEndingStyle()
 		wxMessageBox(_("This file contains mixed line endings. They will be converted to the current setting."), _("Warning"), wxICON_INFORMATION | wxOK);
 		sqlQuery->ConvertEOLs(mode);
 		changed = true;
-		wxLogInfo(wxT("SetLineEndingStyle"));
 		setExtendedTitle();
 		updateMenu();
 	}
@@ -2496,7 +2486,6 @@ void frmQuery::OnSetEOLMode(wxCommandEvent &event)
 	if (!changed)
 	{
 		changed = true;
-		wxLogInfo(wxT("OnSetEOLMode"));
 		setExtendedTitle();
 	}
 
@@ -2572,8 +2561,12 @@ void frmQuery::OnSaveAs(wxCommandEvent &event)
 				wxMessageBox(_("Query text incomplete.\nQuery contained characters that could not be converted to the local charset.\nPlease correct the data or try using UTF8 instead."));
 			file.Close();
 			changed = false;
-			//origin = ORIGIN_FILE;
-			wxLogInfo(wxT("OnSaveAs"));
+
+			// Forget about Initial origin thus making "Save" button behave as usual
+			// (be enabled/disabled according to dirty flag only).
+			if (origin == ORIGIN_INITIAL)
+				origin = ORIGIN_FILE;
+
 			setExtendedTitle();
 			UpdateRecentFiles();
 			fileMenu->Enable(MNU_RECENT, (recentFileMenu->GetMenuItemCount() > 0));
@@ -2724,7 +2717,6 @@ bool frmQuery::updateFromGqb(bool executing)
 	// Make sure this doesn't get call recursively through an event
 	if (gqbUpdateRunning)
 		return false;
-
 	updateMenu();
 
 	gqbUpdateRunning = true;
@@ -2774,6 +2766,7 @@ bool frmQuery::updateFromGqb(bool executing)
 	{
 		sqlQuery->SetText(newQuery + wxT("\n"));
 		sqlQuery->Colourise(0, sqlQuery->GetText().Length());
+		wxSafeYield();                            // needed to process sqlQuery modify event
 		sqlNotebook->SetSelection(0);
 		changed = true;
 		origin = ORIGIN_GQB;
@@ -3703,7 +3696,6 @@ void frmQuery::OnChangeQuery(wxCommandEvent &event)
 		wxSafeYield();                            // needed to process sqlQuery modify event
 		changed = true;
 		origin = ORIGIN_HISTORY;
-		wxLogInfo(wxT("OnChangeQuery"));
 		setExtendedTitle();
 		SetLineEndingStyle();
 		btnDeleteCurrent->Enable(true);
