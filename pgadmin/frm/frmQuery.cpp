@@ -615,7 +615,8 @@ frmQuery::frmQuery(frmMain *form, const wxString &_title, pgConn *_conn, const w
 		OpenLastFile();
 		sqlQuery->Colourise(0, query.Length());
 	}
-	else if (!query.IsNull()) {
+	else if (!query.IsNull())
+	{
 		sqlQuery->SetText(query);
 		sqlQuery->Colourise(0, query.Length());
 		wxSafeYield();                            // needed to process sqlQuery modify event
@@ -2269,7 +2270,12 @@ void frmQuery::OnChangeStc(wxStyledTextEvent &event)
 {
 	// The STC seems to fire this event even if it loses focus. Fortunately,
 	// that seems to be m_modificationType == 512.
-	if (event.m_modificationType != 512) {
+	if (event.m_modificationType != 512 &&
+	        // Sometimes there come events 20 and 520 AFTER the initial query was set by constructor.
+	        // Their occurence is related to query's size and possibly international characters in it (??)
+	        // Filter them out to keep "initial" origin of query text.
+	        (origin != ORIGIN_INITIAL || (event.m_modificationType != 20 && event.m_modificationType != 520)))
+	{
 		// This is the default change origin.
 		// In other cases the changer function will reset it after this event.
 		origin = ORIGIN_MANUAL;
@@ -2739,7 +2745,7 @@ bool frmQuery::updateFromGqb(bool executing)
 	// Only prompt the user if the dirty flag is set, and last modification wasn't from GQB,
 	// and the textbox is not empty, and the new query is different.
 	if(changed && origin != ORIGIN_GQB &&
-	   !sqlQuery->GetText().Trim().IsEmpty() && sqlQuery->GetText() != newQuery + wxT("\n"))
+	        !sqlQuery->GetText().Trim().IsEmpty() && sqlQuery->GetText() != newQuery + wxT("\n"))
 	{
 		wxString fn;
 		if (executing)
