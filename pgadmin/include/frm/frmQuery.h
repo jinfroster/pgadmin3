@@ -72,12 +72,13 @@ public:
 	bool verbose;
 };
 
-enum {
-	ORIGIN_MANUAL,
-	ORIGIN_FILE,
-	ORIGIN_INITIAL,
-	ORIGIN_HISTORY,
-	ORIGIN_GQB
+enum
+{
+    ORIGIN_MANUAL,
+    ORIGIN_FILE,
+    ORIGIN_INITIAL,
+    ORIGIN_HISTORY,
+    ORIGIN_GQB
 };
 
 class frmQuery : public pgFrame

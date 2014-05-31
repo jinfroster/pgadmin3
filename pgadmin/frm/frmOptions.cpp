@@ -938,7 +938,7 @@ void frmOptions::OnTreeSelChanged(wxTreeEvent &event)
 		ShowPanel(sel);
 }
 
-void frmOptions::ShowPanel(const wxTreeItemId& menuItem)
+void frmOptions::ShowPanel(const wxTreeItemId &menuItem)
 {
 	// Hide everything
 	pnlBrowserDisplay->Show(false);
@@ -1026,7 +1026,7 @@ void frmOptions::ShowPanel(const wxTreeItemId& menuItem)
 	// because they all share the same parent
 }
 
-wxTreeItemId frmOptions::GetTreeItemByLabel(const wxTreeItemId& root, const wxString& label)
+wxTreeItemId frmOptions::GetTreeItemByLabel(const wxTreeItemId &root, const wxString &label)
 {
 	wxTreeItemIdValue cookie;
 	wxTreeItemId child;
