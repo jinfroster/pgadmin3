@@ -131,20 +131,6 @@
 								</object>
 							</object>
 						</object>
-					<object class="sizeritem">
-						<cellpos>0,2</cellpos>
-						<cellspan>3,1</cellspan>
-						<flag>wxALIGN_CENTER_HORIZONTAL</flag>
-						<border>5</border>
-						<object class="wxBoxSizer">
-							<orient>wxVERTICAL</orient>
-							<object class="sizeritem">
-								<option>0</option>
-								<flag>wxLEFT|wxTOP</flag>
-								<object class="wxCheckBox" name="chkNames">
-									<label>names</label>
-									<checked>1</checked>
-								</object>
 					</object>
 					<object class="sizeritem">
 						<cellpos>0,2</cellpos>
