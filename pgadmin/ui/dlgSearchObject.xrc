@@ -16,7 +16,7 @@
 				<flag>wxALIGN_CENTER|wxALL|wxEXPAND</flag>
 				<border>3</border>
 				<object class="wxGridBagSizer">
-					<vgap>3</vgap>
+					<vgap>5</vgap>
 					<hgap>3</hgap>
 					<growablecols>1</growablecols>
 					<growablerows>3</growablerows>
@@ -131,6 +131,20 @@
 								</object>
 							</object>
 						</object>
+					<object class="sizeritem">
+						<cellpos>0,2</cellpos>
+						<cellspan>3,1</cellspan>
+						<flag>wxALIGN_CENTER_HORIZONTAL</flag>
+						<border>5</border>
+						<object class="wxBoxSizer">
+							<orient>wxVERTICAL</orient>
+							<object class="sizeritem">
+								<option>0</option>
+								<flag>wxLEFT|wxTOP</flag>
+								<object class="wxCheckBox" name="chkNames">
+									<label>names</label>
+									<checked>1</checked>
+								</object>
 					</object>
 					<object class="sizeritem">
 						<cellpos>0,2</cellpos>
@@ -142,7 +156,7 @@
 							<object class="sizeritem">
 								<option>0</option>
 								<flag>wxLEFT|wxTOP</flag>
-								<border>3</border>
+								<border>5</border>
 								<object class="wxCheckBox" name="chkNames">
 									<label>names</label>
 									<checked>1</checked>
@@ -151,7 +165,7 @@
 							<object class="sizeritem">
 								<option>0</option>
 								<flag>wxLEFT|wxTOP</flag>
-								<border>3</border>
+								<border>5</border>
 								<object class="wxCheckBox" name="chkDefinitions">
 									<label>definitions</label>
 									<checked>0</checked>
@@ -160,7 +174,7 @@
 							<object class="sizeritem">
 								<option>0</option>
 								<flag>wxLEFT|wxTOP</flag>
-								<border>3</border>
+								<border>5</border>
 								<object class="wxCheckBox" name="chkComments">
 									<label>comments</label>
 									<checked>0</checked>

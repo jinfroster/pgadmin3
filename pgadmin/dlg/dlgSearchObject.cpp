@@ -766,6 +766,26 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		searchSQL += wxT("ii.nspname = ") + currentdb->GetConnection()->qtDbString(cbSchema->GetValue()) + wxT(" ");
 	}
 
+	if (cbSchema->GetSelection() == cbSchemaIdxCurrent && !currentSchema.IsEmpty())
+	{
+		searchSQL += (nextPredicate) ? wxT("AND ") : wxT("WHERE ");
+		nextPredicate = true;
+		searchSQL += wxT("ii.nspname = ") + currentdb->GetConnection()->qtDbString(currentSchema) + wxT(" ");
+	}
+	else if (cbSchema->GetValue() == _("My schemas"))
+	{
+		searchSQL += (nextPredicate) ? wxT("AND ") : wxT("WHERE ");
+		nextPredicate = true;
+		searchSQL += wxT("ii.nspname IN (SELECT n.nspname FROM pg_namespace n WHERE n.nspowner = (SELECT u.usesysid FROM pg_user u WHERE u.usename = ")
+		           + currentdb->GetConnection()->qtDbString(currentdb->GetConnection()->GetUser()) + wxT(")) ");
+	}
+	else if (cbSchema->GetValue() != _("All schemas"))
+	{
+		searchSQL += (nextPredicate) ? wxT("AND ") : wxT("WHERE ");
+		nextPredicate = true;
+		searchSQL += wxT("ii.nspname = ") + currentdb->GetConnection()->qtDbString(cbSchema->GetValue()) + wxT(" ");
+	}
+
 	searchSQL += wxT("ORDER BY 1, 2, 3");
 
 	pgSet *set = currentdb->GetConnection()->ExecuteSet(searchSQL);
