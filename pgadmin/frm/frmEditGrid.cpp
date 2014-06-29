@@ -164,7 +164,7 @@ frmEditGrid::frmEditGrid(frmMain *form, const wxString &_title, pgConn *_conn, p
 
 	// File menu
 	fileMenu = new wxMenu();
-	fileMenu->Append(MNU_SAVE, _("&Save"), _("Save the changed row."));
+	fileMenu->Append(MNU_SAVE, _("&Save\tCtrl-S"), _("Save the changed row."));
 	fileMenu->AppendSeparator();
 	fileMenu->Append(MNU_CLOSE, _("&Close\tCtrl-W"), _("Close this window."));
 	fileMenu->Enable(MNU_SAVE, false);
@@ -224,7 +224,7 @@ frmEditGrid::frmEditGrid(frmMain *form, const wxString &_title, pgConn *_conn, p
 	SetMenuBar(menuBar);
 
 	// Accelerators
-	wxAcceleratorEntry entries[7];
+	wxAcceleratorEntry entries[8];
 
 	entries[0].Set(wxACCEL_CTRL,                (int)'S',      MNU_SAVE);
 	entries[1].Set(wxACCEL_NORMAL,              WXK_F5,        MNU_REFRESH);
@@ -233,8 +233,9 @@ frmEditGrid::frmEditGrid(frmMain *form, const wxString &_title, pgConn *_conn, p
 	entries[4].Set(wxACCEL_CTRL,                (int)'C',      MNU_COPY);
 	entries[5].Set(wxACCEL_CTRL,                (int)'V',      MNU_PASTE);
 	entries[6].Set(wxACCEL_NORMAL,              WXK_DELETE,    MNU_DELETE);
+	entries[7].Set(wxACCEL_CTRL,                (int)'W',      MNU_CLOSE);
 
-	wxAcceleratorTable accel(7, entries);
+	wxAcceleratorTable accel(8, entries);
 	SetAcceleratorTable(accel);
 	sqlGrid->SetAcceleratorTable(accel);
 
