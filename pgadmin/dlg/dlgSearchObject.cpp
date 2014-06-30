@@ -471,7 +471,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		             wxT("	left join pg_namespace n on p.pronamespace = n.oid  ")
 		             wxT("	left join pg_type t on p.prorettype = t.oid  ")
 		             wxT("WHERE p.prosrc ILIKE ") + txtPatternStr + wxT(" ")
-		             wxT("UNION ") // Column's type name or default value
+		             wxT("UNION ") // Column's type name and default value
 		             wxT("select 'Columns', a.attname, ")
 		             wxT("':Schemas/' || n.nspname || '/' || ")
 		             wxT("case   ")
@@ -494,7 +494,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		             wxT(" LEFT JOIN pg_namespace n ON n.oid = c.relnamespace ")
 		             wxT(" WHERE c.relkind = 'v' ")
 		             wxT("  and pg_get_viewdef(c.oid) ilike ") + txtPatternStr + wxT(" ")
-		             wxT("UNION ") // Relation's columns except for Views (searched earlier)
+		             wxT("UNION ") // Relation's column names except for Views (searched earlier)
 		             wxT("SELECT CASE ")
 		             wxT("  WHEN c.relkind = 'c' THEN 'Types' ")
 		             wxT("	WHEN c.relkind = 'r' THEN 'Tables' ")
@@ -751,26 +751,6 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 	}
 
 	if (cbSchema->GetSelection() == cbSchemaIdxCurrent && !currentSchema.IsEmpty())
-	{
-		searchSQL += (nextPredicate) ? wxT("AND ") : wxT("WHERE ");
-		nextPredicate = true;
-		searchSQL += wxT("ii.nspname = ") + currentdb->GetConnection()->qtDbString(currentSchema) + wxT(" ");
-	}
-	else if (cbSchema->GetValue() == _("My schemas"))
-	{
-		searchSQL += (nextPredicate) ? wxT("AND ") : wxT("WHERE ");
-		nextPredicate = true;
-		searchSQL += wxT("ii.nspname IN (SELECT n.nspname FROM pg_namespace n WHERE n.nspowner = (SELECT u.usesysid FROM pg_user u WHERE u.usename = ")
-		           + currentdb->GetConnection()->qtDbString(currentdb->GetConnection()->GetUser()) + wxT(")) ");
-	}
-	else if (cbSchema->GetValue() != _("All schemas"))
-	{
-		searchSQL += (nextPredicate) ? wxT("AND ") : wxT("WHERE ");
-		nextPredicate = true;
-		searchSQL += wxT("ii.nspname = ") + currentdb->GetConnection()->qtDbString(cbSchema->GetValue()) + wxT(" ");
-	}
-
-	searchSQL += wxT("ORDER BY 1, 2, 3");
 	{
 		searchSQL += (nextPredicate) ? wxT("AND ") : wxT("WHERE ");
 		nextPredicate = true;
