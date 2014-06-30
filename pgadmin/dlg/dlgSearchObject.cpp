@@ -144,14 +144,16 @@ dlgSearchObject::dlgSearchObject(frmMain *p, pgDatabase *db, pgObject *obj)
 		cbType->Append(_("Collations"));
 	}
 
-	cbType->SetSelection(0);
-
 	cbSchema->Clear();
 	cbSchema->Append(_("All schemas"));
 	cbSchema->Append(_("My schemas"));
 
-	if (obj->GetSchema())
-		currentSchema = obj->GetSchema()->GetName();
+	if (obj->GetSchema()) {
+		if (obj->GetSchema()->GetSchema())
+			currentSchema = obj->GetSchema()->GetSchema()->GetName();
+		else
+			currentSchema = obj->GetSchema()->GetName();
+	}
 	else if (obj->GetMetaType() == PGM_SCHEMA && !obj->IsCollection())
 		currentSchema = obj->GetName();
 	else
@@ -184,14 +186,77 @@ dlgSearchObject::dlgSearchObject(frmMain *p, pgDatabase *db, pgObject *obj)
 		delete set;
 	}
 
-	cbSchema->SetSelection(0);
-
+	RestoreSettings();
 	txtPattern->SetFocus();
 }
 
 
 dlgSearchObject::~dlgSearchObject()
 {
+	SavePosition();
+}
+
+void dlgSearchObject::SaveSettings()
+{
+	settings->Write(wxT("SearchObject/Pattern"), txtPattern->GetValue());
+	settings->Write(wxT("SearchObject/Type"), aMap[cbType->GetValue()]);
+	settings->Write(wxT("SearchObject/Schema"), cbSchema->GetValue());
+	settings->WriteBool(wxT("SearchObject/Names"), chkNames->GetValue());
+	settings->WriteBool(wxT("SearchObject/Definitions"), chkDefinitions->GetValue());
+	settings->WriteBool(wxT("SearchObject/Comments"), chkComments->GetValue());
+}
+
+wxString dlgSearchObject::getMapKeyByValue(wxString search_value)
+{
+	wxString key = wxEmptyString;
+	LngMapping::iterator it;
+
+	for (it = aMap.begin(); it != aMap.end(); ++it)
+	{
+		if (search_value.IsSameAs(it->second))
+		{
+			key = it->first;
+			break;
+		}
+	}
+	return key;
+}
+
+void dlgSearchObject::RestoreSettings()
+{
+	wxString val, mapkey;
+	bool bVal;
+	
+	// Pattern
+	settings->Read(wxT("SearchObject/Pattern"), &val, wxEmptyString);
+	txtPattern->SetValue(val);
+	
+	// Type
+	settings->Read(wxT("SearchObject/Type"), &val, wxT("All types"));
+	mapkey = getMapKeyByValue(val);
+	if (cbType->FindString(mapkey, true) == wxNOT_FOUND)
+		cbType->SetValue(getMapKeyByValue(wxT("All types")));
+	else
+		cbType->SetValue(mapkey);
+
+	// Schema
+	settings->Read(wxT("SearchObject/Schema"), &val, wxT("All schemas"));
+	if (cbSchema->FindString(val, true) == wxNOT_FOUND)
+		cbSchema->SetValue(wxT("All schemas"));
+	else
+		cbSchema->SetValue(val);
+
+	// names
+	settings->Read(wxT("SearchObject/Names"), &bVal, true);
+	chkNames->SetValue(bVal);
+	
+	// definitions
+	settings->Read(wxT("SearchObject/Definitions"), &bVal, false);
+	chkDefinitions->SetValue(bVal);
+	
+	// comments
+	settings->Read(wxT("SearchObject/Comments"), &bVal, false);
+	chkComments->SetValue(bVal);
 }
 
 void dlgSearchObject::OnHelp(wxCommandEvent &ev)
@@ -285,7 +350,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 	if (chkNames->GetValue())
 	{
 		if (nextMode)
-			searchSQL += wxT("UNION ALL \n");
+			searchSQL += wxT("UNION \n");
 		nextMode = true;
 		searchSQL += wxT("SELECT * FROM (  ")
 		             wxT("	SELECT  ")
@@ -458,7 +523,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 	if (chkDefinitions->GetValue())
 	{
 		if (nextMode)
-			searchSQL += wxT("UNION ALL \n");
+			searchSQL += wxT("UNION \n");
 		nextMode = true;
 		searchSQL += wxT("SELECT * FROM (  ") // Function's source code
 		             wxT("	SELECT CASE WHEN t.typname = 'trigger' THEN 'Trigger Functions' ELSE 'Functions' END AS type, p.proname as objectname,  ")
@@ -467,7 +532,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		             wxT("	left join pg_namespace n on p.pronamespace = n.oid  ")
 		             wxT("	left join pg_type t on p.prorettype = t.oid  ")
 		             wxT("WHERE p.prosrc ILIKE ") + txtPatternStr + wxT(" ")
-		             wxT("UNION ") // Column's type name or default value
+		             wxT("UNION ") // Column's type name and default value
 		             wxT("select 'Columns', a.attname, ")
 		             wxT("':Schemas/' || n.nspname || '/' || ")
 		             wxT("case   ")
@@ -490,7 +555,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		             wxT(" LEFT JOIN pg_namespace n ON n.oid = c.relnamespace ")
 		             wxT(" WHERE c.relkind = 'v' ")
 		             wxT("  and pg_get_viewdef(c.oid) ilike ") + txtPatternStr + wxT(" ")
-		             wxT("UNION ") // Relation's columns except for Views (searched earlier)
+		             wxT("UNION ") // Relation's column names except for Views (searched earlier)
 		             wxT("SELECT CASE ")
 		             wxT("  WHEN c.relkind = 'c' THEN 'Types' ")
 		             wxT("	WHEN c.relkind = 'r' THEN 'Tables' ")
@@ -516,7 +581,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 	if (chkComments->GetValue())
 	{
 		if (nextMode)
-			searchSQL += wxT("UNION ALL \n");
+			searchSQL += wxT("UNION \n");
 		nextMode = true;
 
 		wxString pd = wxT("(select pd.objoid, pd.classoid, pd.objsubid, c.relname")
@@ -766,26 +831,6 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		searchSQL += wxT("ii.nspname = ") + currentdb->GetConnection()->qtDbString(cbSchema->GetValue()) + wxT(" ");
 	}
 
-	if (cbSchema->GetSelection() == cbSchemaIdxCurrent && !currentSchema.IsEmpty())
-	{
-		searchSQL += (nextPredicate) ? wxT("AND ") : wxT("WHERE ");
-		nextPredicate = true;
-		searchSQL += wxT("ii.nspname = ") + currentdb->GetConnection()->qtDbString(currentSchema) + wxT(" ");
-	}
-	else if (cbSchema->GetValue() == _("My schemas"))
-	{
-		searchSQL += (nextPredicate) ? wxT("AND ") : wxT("WHERE ");
-		nextPredicate = true;
-		searchSQL += wxT("ii.nspname IN (SELECT n.nspname FROM pg_namespace n WHERE n.nspowner = (SELECT u.usesysid FROM pg_user u WHERE u.usename = ")
-		           + currentdb->GetConnection()->qtDbString(currentdb->GetConnection()->GetUser()) + wxT(")) ");
-	}
-	else if (cbSchema->GetValue() != _("All schemas"))
-	{
-		searchSQL += (nextPredicate) ? wxT("AND ") : wxT("WHERE ");
-		nextPredicate = true;
-		searchSQL += wxT("ii.nspname = ") + currentdb->GetConnection()->qtDbString(cbSchema->GetValue()) + wxT(" ");
-	}
-
 	searchSQL += wxT("ORDER BY 1, 2, 3");
 
 	pgSet *set = currentdb->GetConnection()->ExecuteSet(searchSQL);
@@ -869,10 +914,12 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 	}
 
 	if (statusBar)
+        {
 		if (i > 0)
 			statusBar->SetStatusText(wxString::Format(wxPLURAL("Found %d item", "Found %d items",i), i));
 		else
 			statusBar->SetStatusText(_("Nothing was found"));
+        }
 
 	ToggleBtnSearch(true);
 }
@@ -897,6 +944,7 @@ wxString dlgSearchObject::TranslatePath(wxString &path)
 
 void dlgSearchObject::OnCancel(wxCommandEvent &ev)
 {
+	SaveSettings();
 	if (IsModal())
 		EndModal(wxID_CANCEL);
 	else
