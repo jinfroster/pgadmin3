@@ -754,6 +754,16 @@ public:
 		Write(wxT("OptionsLastTreeItem"), newval);
 	}
 
+	wxString GetColumnDescrFormat() const
+	{
+		wxString s;
+		Read(wxT("ColumnDescrFormat"), &s, wxT("%n, %t %a: %d"));
+		return s;
+	}
+	void SetColumnDescrFormat(const wxString &newval)
+	{
+		Write(wxT("ColumnDescrFormat"), newval);
+	}
 
 	// Functions for storing settings
 	bool Write(const wxString &key, const wxString &value)

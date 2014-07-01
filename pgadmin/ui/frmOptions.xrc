@@ -1071,6 +1071,33 @@
               <border>4</border>
             </object>
             <object class="sizeritem">
+              <object class="wxPanel" name="pnlDataEditor">
+                <hidden>1</hidden>
+                <object class="wxFlexGridSizer">
+                  <cols>2</cols>
+                  <vgap>5</vgap>
+                  <hgap>5</hgap>
+                  <growablecols>1</growablecols>
+                  <object class="sizeritem">
+                    <object class="wxStaticText" name="lblColumnDescrFormat">
+                      <label>Column description format</label>
+                    </object>
+                    <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                    <border>4</border>
+                  </object>
+                  <object class="sizeritem">
+                    <object class="wxTextCtrl" name="txtColumnDescrFormat">
+                      <value></value>
+                    </object>
+                    <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                    <border>4</border>
+                  </object>
+                </object>
+              </object>
+              <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+              <border>4</border>
+            </object>
+            <object class="sizeritem">
 			  <object class="wxPanel" name="pnlServerStatus">
 				  <hidden>1</hidden>
                 <object class="wxFlexGridSizer">

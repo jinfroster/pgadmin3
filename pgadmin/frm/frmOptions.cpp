@@ -50,6 +50,7 @@
 #define QUERYTOOL_FAVOURITES_ITEM _("Favourites")
 #define QUERYTOOL_MACROS_ITEM _("Macros")
 #define QUERYTOOL_HISTORYFILE_ITEM _("History file")
+#define DATAEDITOR_ITEM _("Data Editor")
 #define DATABASEDESIGNER_ITEM _("Database Designer")
 #define SERVERSTATUS_ITEM _("Server status")
 #define MISC_ITEM _("Miscellaneous")
@@ -79,23 +80,23 @@
 #define chkShowUsersForPrivileges   CTRL_CHECKBOX("chkShowUsersForPrivileges")
 #define txtAutoRowCount             CTRL_TEXT("txtAutoRowCount")
 #define txtIndent                   CTRL_TEXT("txtIndent")
-#define chkSpacesForTabs			CTRL_CHECKBOX("chkSpacesForTabs")
-#define cbCopyQuote					CTRL_COMBOBOX("cbCopyQuote")
-#define cbCopyQuoteChar				CTRL_COMBOBOX("cbCopyQuoteChar")
-#define cbCopySeparator				CTRL_COMBOBOX("cbCopySeparator")
+#define chkSpacesForTabs            CTRL_CHECKBOX("chkSpacesForTabs")
+#define cbCopyQuote                 CTRL_COMBOBOX("cbCopyQuote")
+#define cbCopyQuoteChar             CTRL_COMBOBOX("cbCopyQuoteChar")
+#define cbCopySeparator             CTRL_COMBOBOX("cbCopySeparator")
 #define chkStickySql                CTRL_CHECKBOX("chkStickySql")
 #define chkIndicateNull             CTRL_CHECKBOX("chkIndicateNull")
-#define txtDecimalMark	            CTRL_TEXT("txtDecimalMark")
-#define chkColumnNames				CTRL_CHECKBOX("chkColumnNames")
+#define txtDecimalMark              CTRL_TEXT("txtDecimalMark")
+#define chkColumnNames              CTRL_CHECKBOX("chkColumnNames")
 #define txtThousandsSeparator       CTRL_TEXT("txtThousandsSeparator")
 #define chkAutoRollback             CTRL_CHECKBOX("chkAutoRollback")
 #define chkDoubleClickProperties    CTRL_CHECKBOX("chkDoubleClickProperties")
-#define chkShowNotices			    CTRL_CHECKBOX("chkShowNotices")
+#define chkShowNotices              CTRL_CHECKBOX("chkShowNotices")
 #define cbLanguage                  CTRL_COMBOBOX("cbLanguage")
 #define pickerSqlFont               CTRL_FONTPICKER("pickerSqlFont")
 #define chkSuppressHints            CTRL_CHECKBOX("chkSuppressHints")
 #define chkResetHints               CTRL_CHECKBOX("chkResetHints")
-#define lstDisplay					CTRL_CHECKLISTBOX("lstDisplay")
+#define lstDisplay                  CTRL_CHECKLISTBOX("lstDisplay")
 #define chkSystemObjects            CTRL_CHECKBOX("chkSystemObjects")
 #define chkIgnoreVersion            CTRL_CHECKBOX("chkIgnoreVersion")
 #define pickerIdleProcessColour     CTRL_COLOURPICKER("pickerIdleProcessColour")
@@ -103,11 +104,12 @@
 #define pickerSlowProcessColour     CTRL_COLOURPICKER("pickerSlowProcessColour")
 #define pickerBlockedProcessColour  CTRL_COLOURPICKER("pickerBlockedProcessColour")
 #define pickerFavouritesFile        CTRL_FILEPICKER("pickerFavouritesFile")
-#define pickerMacrosFile               CTRL_FILEPICKER("pickerMacrosFile")
-#define pickerHistoryFile              CTRL_FILEPICKER("pickerHistoryFile")
+#define pickerMacrosFile            CTRL_FILEPICKER("pickerMacrosFile")
+#define pickerHistoryFile           CTRL_FILEPICKER("pickerHistoryFile")
 #define pickerExtFormatCmd          CTRL_FILEPICKER("pickerExtFormatCmd")
 #define txtHistoryMaxQueries        CTRL_TEXT("txtHistoryMaxQueries")
 #define txtHistoryMaxQuerySize      CTRL_TEXT("txtHistoryMaxQuerySize")
+#define txtColumnDescrFormat        CTRL_TEXT("txtColumnDescrFormat")
 #define chkSQLUseSystemBackgroundColour  CTRL_CHECKBOX("chkSQLUseSystemBackgroundColour")
 #define chkSQLUseSystemForegroundColour  CTRL_CHECKBOX("chkSQLUseSystemForegroundColour")
 #define pickerSQLBackgroundColour        CTRL_COLOURPICKER("pickerSQLBackgroundColour")
@@ -126,25 +128,26 @@
 #define pickerSQLColour11           CTRL_COLOURPICKER("pickerSQLColour11")
 #define pickerSQLCaretColour        CTRL_COLOURPICKER("pickerSQLCaretColour")
 #define chkKeywordsInUppercase      CTRL_CHECKBOX("chkKeywordsInUppercase")
-#define menus                		CTRL_TREE("menus")
+#define menus                       CTRL_TREE("menus")
 #define pnlBrowserDisplay           CTRL_PANEL("pnlBrowserDisplay")
 #define pnlBrowserProperties        CTRL_PANEL("pnlBrowserProperties")
-#define pnlBrowserBinPath         	CTRL_PANEL("pnlBrowserBinPath")
-#define pnlBrowserMisc          	CTRL_PANEL("pnlBrowserMisc")
+#define pnlBrowserBinPath           CTRL_PANEL("pnlBrowserBinPath")
+#define pnlBrowserMisc              CTRL_PANEL("pnlBrowserMisc")
 #define pnlQueryToolEditor          CTRL_PANEL("pnlQueryToolEditor")
 #define pnlQueryToolColours         CTRL_PANEL("pnlQueryToolColours")
 #define pnlQueryToolResults         CTRL_PANEL("pnlQueryToolResults")
-#define pnlQueryToolFiles          	CTRL_PANEL("pnlQueryToolFiles")
+#define pnlQueryToolFiles           CTRL_PANEL("pnlQueryToolFiles")
 #define pnlQueryToolFavourites      CTRL_PANEL("pnlQueryToolFavourites")
 #define pnlQueryToolMacros          CTRL_PANEL("pnlQueryToolMacros")
 #define pnlQueryToolHistoryFile     CTRL_PANEL("pnlQueryToolHistoryFile")
+#define pnlDataEditor               CTRL_PANEL("pnlDataEditor")
 #define pnlDatabaseDesigner         CTRL_PANEL("pnlDatabaseDesigner")
-#define pnlServerStatus          	CTRL_PANEL("pnlServerStatus")
-#define pnlMiscUI                	CTRL_PANEL("pnlMiscUI")
+#define pnlServerStatus             CTRL_PANEL("pnlServerStatus")
+#define pnlMiscUI                   CTRL_PANEL("pnlMiscUI")
 #define pnlMiscHelpPath             CTRL_PANEL("pnlMiscHelpPath")
-#define pnlMiscGuruHints          	CTRL_PANEL("pnlMiscGuruHints")
-#define pnlMiscLogging          	CTRL_PANEL("pnlMiscLogging")
-#define cbRefreshOnClick			CTRL_COMBOBOX("cbRefreshOnClick")
+#define pnlMiscGuruHints            CTRL_PANEL("pnlMiscGuruHints")
+#define pnlMiscLogging              CTRL_PANEL("pnlMiscLogging")
+#define cbRefreshOnClick            CTRL_COMBOBOX("cbRefreshOnClick")
 #define pickerFontDD                CTRL_FONTPICKER("pickerFontDD")
 
 
@@ -338,6 +341,7 @@ frmOptions::frmOptions(frmMain *parent)
 	txtHistoryMaxQueries->SetValue(NumToStr(settings->GetHistoryMaxQueries()));
 	txtHistoryMaxQuerySize->SetValue(NumToStr(settings->GetHistoryMaxQuerySize()));
 
+	txtColumnDescrFormat->SetValue(settings->GetColumnDescrFormat());
 	chkSQLUseSystemBackgroundColour->SetValue(settings->GetSQLBoxUseSystemBackground());
 	chkSQLUseSystemForegroundColour->SetValue(settings->GetSQLBoxUseSystemForeground());
 	UpdateColourControls();
@@ -444,6 +448,8 @@ frmOptions::frmOptions(frmMain *parent)
 	menus->AppendItem(node, QUERYTOOL_FAVOURITES_ITEM);
 	menus->AppendItem(node, QUERYTOOL_MACROS_ITEM);
 	menus->AppendItem(node, QUERYTOOL_HISTORYFILE_ITEM);
+
+	node = menus->AppendItem(root, DATAEDITOR_ITEM);
 
 	node = menus->AppendItem(root, DATABASEDESIGNER_ITEM);
 
@@ -660,6 +666,7 @@ void frmOptions::OnOK(wxCommandEvent &ev)
 	settings->SetHistoryMaxQueries(StrToLong(txtHistoryMaxQueries->GetValue()));
 	settings->SetHistoryMaxQuerySize(StrToLong(txtHistoryMaxQuerySize->GetValue()));
 	settings->SetRefreshOnClick(cbRefreshOnClick->GetSelection());
+	settings->SetColumnDescrFormat(txtColumnDescrFormat->GetValue());
 
 	wxString copySeparator = cbCopySeparator->GetValue();
 	if (copySeparator == _("Tab"))
@@ -953,6 +960,7 @@ void frmOptions::ShowPanel(const wxTreeItemId &menuItem)
 	pnlQueryToolFavourites->Show(false);
 	pnlQueryToolMacros->Show(false);
 	pnlQueryToolHistoryFile->Show(false);
+	pnlDataEditor->Show(false);
 	pnlDatabaseDesigner->Show(false);
 	pnlServerStatus->Show(false);
 	pnlMiscUI->Show(false);
@@ -1000,6 +1008,9 @@ void frmOptions::ShowPanel(const wxTreeItemId &menuItem)
 		pnlQueryToolMacros->Show(true);
 	else if (menuSelection == QUERYTOOL_HISTORYFILE_ITEM)
 		pnlQueryToolHistoryFile->Show(true);
+
+	else if (menuSelection == DATAEDITOR_ITEM)
+		pnlDataEditor->Show(true);
 
 	else if (menuSelection == DATABASEDESIGNER_ITEM)
 		pnlDatabaseDesigner->Show(true);
