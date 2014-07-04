@@ -39,9 +39,11 @@
 // Position of status line fields
 enum
 {
+    EGSTATUSPOS_ICON,
     EGSTATUSPOS_ROWS,
     EGSTATUSPOS_MSGS
 };
+#define EGSTATUSPOS_COUNT 3
 
 class cacheLine
 {
@@ -335,6 +337,7 @@ private:
 	int limit;
 	sqlCell *editorCell;
 	bool closing;
+	wxStaticBitmap *mStatusBitmap;
 
 	DECLARE_EVENT_TABLE()
 };

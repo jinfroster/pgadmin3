@@ -3533,6 +3533,7 @@
     <png2c Include="include\images\viewdata.png" />
     <png2c Include="include\images\viewfiltereddata.png" />
     <png2c Include="include\images\views.png" />
+    <png2c Include="include\images\warning.png" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="pgAdmin3.rc" />

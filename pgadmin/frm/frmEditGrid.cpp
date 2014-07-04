@@ -47,6 +47,7 @@
 #include "images/help.pngc"
 #include "images/clip_copy.pngc"
 #include "images/clip_paste.pngc"
+#include "images/warning.pngc" // taken from http://www.iconarchive.com/show/basic-icons-by-pixelmixer/warning-icon.html (freeware)
 
 #define CTRLID_LIMITCOMBO       4226
 
@@ -109,10 +110,12 @@ frmEditGrid::frmEditGrid(frmMain *form, const wxString &_title, pgConn *_conn, p
 
 	SetMinSize(wxSize(300, 200));
 
-	int iWidths[2] = {150, -1};
-	CreateStatusBar(2);
+	int iWidths[EGSTATUSPOS_COUNT] = {16, 150, -1};
+	wxStatusBar *pBar = CreateStatusBar(EGSTATUSPOS_COUNT);
 	SetStatusBarPane(EGSTATUSPOS_MSGS);
-	SetStatusWidths(2, iWidths);
+	pBar->SetStatusWidths(EGSTATUSPOS_COUNT, iWidths);
+	mStatusBitmap = new wxStaticBitmap(pBar, -1, wxBitmap(*warning_png_img));
+	mStatusBitmap->Show(false);
 
 	sqlGrid = new ctlSQLEditGrid(this, CTL_EDITGRID, wxDefaultPosition, wxDefaultSize);
 	sqlGrid->SetTable(0);
@@ -330,6 +333,16 @@ void frmEditGrid::OnEraseBackground(wxEraseEvent &event)
 
 void frmEditGrid::OnSize(wxSizeEvent &event)
 {
+	// position statusbar icon over the appropriate field
+	wxStatusBar* sbar = GetStatusBar();
+	if( sbar && mStatusBitmap )
+	{
+		wxRect sbr;
+		int bmpH, bmpW;
+		sbar->GetFieldRect(EGSTATUSPOS_ICON, sbr);
+		mStatusBitmap->GetSize(&bmpH, &bmpW);
+		mStatusBitmap->Move(sbr.x + sbr.width/2 - bmpW/2, sbr.y + sbr.height/2 - bmpH/2);
+	}
 	event.Skip();
 }
 
@@ -428,13 +441,22 @@ void frmEditGrid::SetLimit(const int rowlimit)
 void frmEditGrid::SetStatusTextRows(const int numRows)
 {
 	wxString status = wxString::Format(wxPLURAL("%d row", "%d rows", numRows), numRows);
+	bool showWarn = false;
 
-	if (limit > 0 && numRows == limit)
-		status += wxString::Format(_(" LIMIT"), limit);
+	if (GetFilter().Trim().Len() > 0) {
+		status += (showWarn) ? wxT(", "): wxT(" (");
+		status += _("Filter");
+		showWarn = true;
+	}
 
-	if (GetFilter().Trim().Len() > 0)
-		status += _(", FILTER");
+	if (limit > 0 && numRows == limit) {
+		status += (showWarn) ? wxT(", "): wxT(" (");
+		status += _("Limit");
+		showWarn = true;
+	}
 
+	mStatusBitmap->Show(showWarn);
+	if (showWarn) status += wxT(")");
 	SetStatusText(status, EGSTATUSPOS_ROWS);
 }
 
