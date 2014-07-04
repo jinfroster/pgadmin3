@@ -337,11 +337,11 @@ void frmEditGrid::OnSize(wxSizeEvent &event)
 	wxStatusBar* sbar = GetStatusBar();
 	if( sbar && mStatusBitmap )
 	{
-		wxRect sbr;
-		int bmpH, bmpW;
-		sbar->GetFieldRect(EGSTATUSPOS_ICON, sbr);
-		mStatusBitmap->GetSize(&bmpH, &bmpW);
-		mStatusBitmap->Move(sbr.x + sbr.width/2 - bmpW/2, sbr.y + sbr.height/2 - bmpH/2);
+		wxRect r;
+		int iconH, iconW;
+		sbar->GetFieldRect(EGSTATUSPOS_ICON, r);
+		mStatusBitmap->GetSize(&iconH, &iconW);
+		mStatusBitmap->Move(r.x + r.width/2 - iconW/2, r.y + r.height/2 - iconH/2);
 	}
 	event.Skip();
 }
