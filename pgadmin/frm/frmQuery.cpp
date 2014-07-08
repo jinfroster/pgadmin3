@@ -622,6 +622,11 @@ frmQuery::frmQuery(frmMain *form, const wxString &_title, pgConn *_conn, const w
 		wxSafeYield();                            // needed to process sqlQuery modify event
 		changed = false;
 		origin = ORIGIN_INITIAL;
+		/* _title if not empty should contain displayName of base object for the query.
+		   It's pretty good for a proposed filename if the user chooses to Save As.
+		   I'd just strip off empty square brackets for a function. */
+		lastFilename = _title;
+		lastFilename.Replace(wxT("()"), wxEmptyString);
 		setExtendedTitle();
 	}
 
@@ -3755,7 +3760,7 @@ wxWindow *queryToolBaseFactory::StartDialogSql(frmMain *form, pgObject *obj, con
 	pgConn *conn = db->CreateConn(applicationname);
 	if (conn)
 	{
-		frmQuery *fq = new frmQuery(form, wxEmptyString, conn, sql);
+		frmQuery *fq = new frmQuery(form, obj->GetDisplayName(), conn, sql);
 		fq->Go();
 		return fq;
 	}
