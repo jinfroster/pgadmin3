@@ -110,11 +110,12 @@ frmEditGrid::frmEditGrid(frmMain *form, const wxString &_title, pgConn *_conn, p
 
 	SetMinSize(wxSize(300, 200));
 
-	int iWidths[EGSTATUSPOS_COUNT] = {16, 150, -1};
+	int iWidths[EGSTATUSPOS_COUNT] = {20, 150, -1};
 	wxStatusBar *pBar = CreateStatusBar(EGSTATUSPOS_COUNT);
 	SetStatusBarPane(EGSTATUSPOS_MSGS);
 	pBar->SetStatusWidths(EGSTATUSPOS_COUNT, iWidths);
 	mStatusBitmap = new wxStaticBitmap(pBar, -1, wxBitmap(*warning_png_img));
+	mStatusBitmap->SetToolTip(_("Some rows may have not been fetched due to a filtering condition or a rows limit!"));
 	mStatusBitmap->Show(false);
 
 	sqlGrid = new ctlSQLEditGrid(this, CTL_EDITGRID, wxDefaultPosition, wxDefaultSize);
@@ -159,6 +160,7 @@ frmEditGrid::frmEditGrid(frmMain *form, const wxString &_title, pgConn *_conn, p
 	cbLimit->Append(_("500 rows"));
 	cbLimit->Append(_("100 rows"));
 	cbLimit->SetValue(_("No limit"));
+	cbLimit->SetToolTip(_("Maximum number of rows to be fetched"));
 
 	// Finally, the scratchpad
 	scratchPad = new wxTextCtrl(this, -1, wxT(""), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxHSCROLL);
