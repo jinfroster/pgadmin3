@@ -108,6 +108,7 @@ public:
 	wxString GetInsertSql(ctlTree *browser);
 	wxString GetUpdateSql(ctlTree *browser);
 	pgObject *Refresh(ctlTree *browser, const wxTreeItemId item);
+	void RefreshMatView(bool concurrently);
 
 	bool HasStats()
 	{
@@ -146,6 +147,15 @@ public:
 	void iSetIsPopulated(const wxString &s)
 	{
 		isPopulated = s;
+	}
+
+	wxString GetCheckOption()
+	{
+		return check_option;
+	}
+	void iSetCheckOption(const wxString &s)
+	{
+		check_option = s;
 	}
 
 	bool GetCustomAutoVacuumEnabled()
@@ -358,7 +368,7 @@ private:
 	         toast_autovacuum_vacuum_cost_limit, toast_autovacuum_freeze_min_age,
 	         toast_autovacuum_freeze_max_age, toast_autovacuum_freeze_table_age;
 
-	wxString tablespace, isPopulated;
+	wxString tablespace, isPopulated, check_option;
 	bool hasToastTable;
 	OID tablespaceOid;
 
@@ -370,5 +380,22 @@ public:
 	pgViewCollection(pgaFactory *factory, pgSchema *sch);
 	wxString GetTranslatedMessage(int kindOfMessage) const;
 };
+
+class refreshMatViewFactory : public contextActionFactory
+{
+public:
+	refreshMatViewFactory(menuFactoryList *list, wxMenu *mnu, ctlMenuToolbar *toolbar);
+	wxWindow *StartDialog(frmMain *form, pgObject *obj);
+	bool CheckEnable(pgObject *obj);
+};
+
+class refreshConcurrentlyMatViewFactory : public contextActionFactory
+{
+public:
+	refreshConcurrentlyMatViewFactory(menuFactoryList *list, wxMenu *mnu, ctlMenuToolbar *toolbar);
+	wxWindow *StartDialog(frmMain *form, pgObject *obj);
+	bool CheckEnable(pgObject *obj);
+};
+
 
 #endif

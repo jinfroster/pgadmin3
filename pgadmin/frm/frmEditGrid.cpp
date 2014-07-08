@@ -3274,7 +3274,7 @@ wxString sqlCellAttr::Quote(pgConn *conn, const wxString &value)
 	else
 		str = conn->qtDbString(value);
 
-	return str + wxT("::") + typeName;
+	return str + wxT("::") + displayTypeName;
 }
 
 

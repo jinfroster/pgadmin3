@@ -17,6 +17,7 @@
 #include "utils/misc.h"
 #include "schema/pgColumn.h"
 #include "schema/pgView.h"
+#include "frm/frmMain.h"
 #include "frm/frmHint.h"
 #include "schema/pgTrigger.h"
 
@@ -131,6 +132,8 @@ bool pgView::DropObject(wxFrame *frame, ctlTree *browser, bool cascaded)
 
 wxString pgView::GetSql(ctlTree *browser)
 {
+    wxString withoptions;
+
 	if (sql.IsNull())
 	{
 		bool IsMatViewFlag = false;
@@ -141,7 +144,14 @@ wxString pgView::GetSql(ctlTree *browser)
 			      + wxT("\n\nCREATE OR REPLACE VIEW ") + GetQuotedFullIdentifier();
 
 			if (GetConnection()->BackendMinimumVersion(9, 2) && GetSecurityBarrier().Length() > 0)
-				sql += wxT(" WITH (security_barrier=") + GetSecurityBarrier() + wxT(")");
+				withoptions = wxT("security_barrier=") + GetSecurityBarrier();
+			if (GetConnection()->BackendMinimumVersion(9, 4) && GetCheckOption().Length() > 0)
+            {
+                if (withoptions.Length() > 0)
+                    withoptions += wxT(", ");
+				withoptions = wxT("check_option=") + GetCheckOption();
+            }
+			sql += wxT(" WITH (") + withoptions + wxT(")");
 		}
 		else
 		{
@@ -440,6 +450,17 @@ wxString pgView::GetUpdateSql(ctlTree *browser)
 	return sql;
 }
 
+
+void pgView::RefreshMatView(bool concurrently)
+{
+	wxString sql = wxT("REFRESH MATERIALIZED VIEW ");
+	if (concurrently)
+		sql += wxT("CONCURRENTLY ");
+	sql += GetQuotedFullIdentifier();
+	GetDatabase()->ExecuteVoid(sql);
+}
+
+
 void pgView::ShowTreeDetail(ctlTree *browser, frmMain *form, ctlListView *properties, ctlSQLBox *sqlPane)
 {
 	if (!expandedKids)
@@ -547,6 +568,9 @@ void pgView::ShowTreeDetail(ctlTree *browser, frmMain *form, ctlListView *proper
 			else
 				properties->AppendItem(_("With data?"), _("No"));
 		}
+
+		if (GetConnection()->BackendMinimumVersion(9, 4))
+			properties->AppendItem(_("Check Option"), GetCheckOption());
 
 		if (!GetLabels().IsEmpty())
 		{
@@ -713,6 +737,11 @@ pgObject *pgViewFactory::CreateObjects(pgCollection *collection, ctlTree *browse
 		       wxT(", c.reloptions AS reloptions, tst.reloptions AS toast_reloptions \n")
 		       wxT(", (CASE WHEN c.reltoastrelid = 0 THEN false ELSE true END) AS hastoasttable\n");
 	}
+	if (collection->GetConnection()->BackendMinimumVersion(9, 4))
+	{
+		sql += wxT(",\nsubstring(array_to_string(c.reloptions, ',') FROM 'check_option=([a-z]*)') AS check_option");
+	}
+
 
 
 	sql += wxT("\n  FROM pg_class c\n")
@@ -746,6 +775,10 @@ pgObject *pgViewFactory::CreateObjects(pgCollection *collection, ctlTree *browse
 			view->iSetAcl(views->GetVal(wxT("relacl")));
 			view->iSetDefinition(views->GetVal(wxT("definition")));
 			view->iSetMaterializedView(false);
+			if (collection->GetDatabase()->BackendMinimumVersion(9, 4))
+            {
+			    view->iSetCheckOption(views->GetVal(wxT("check_option")));
+            }
 
 			if (collection->GetDatabase()->BackendMinimumVersion(9, 1))
 			{
@@ -864,3 +897,58 @@ pgCollection *pgViewFactory::CreateCollection(pgObject *obj)
 
 pgViewFactory viewFactory;
 static pgaCollectionFactory cf(&viewFactory, __("Views"), views_png_img);
+
+refreshMatViewFactory::refreshMatViewFactory(menuFactoryList *list, wxMenu *mnu, ctlMenuToolbar *toolbar) : contextActionFactory(list)
+{
+	mnu->Append(id, _("&Refresh data"), _("Refresh data for the selected object."));
+}
+
+
+wxWindow *refreshMatViewFactory::StartDialog(frmMain *form, pgObject *obj)
+{
+	form->StartMsg(_("Refreshing data"));
+
+	((pgView *)obj)->RefreshMatView(false);
+	wxTreeItemId item = form->GetBrowser()->GetSelection();
+	if (obj == form->GetBrowser()->GetObject(item))
+		obj->ShowTreeDetail(form->GetBrowser(), 0, form->GetProperties());
+
+	form->EndMsg();
+
+	return 0;
+}
+
+
+bool refreshMatViewFactory::CheckEnable(pgObject *obj)
+{
+	return obj && obj->IsCreatedBy(viewFactory) && ((pgView *)obj)->GetMaterializedView();
+}
+
+
+refreshConcurrentlyMatViewFactory::refreshConcurrentlyMatViewFactory(menuFactoryList *list, wxMenu *mnu, ctlMenuToolbar *toolbar) : contextActionFactory(list)
+{
+	mnu->Append(id, _("&Refresh data concurrently"), _("Refresh data concurrently for the selected object."));
+}
+
+
+wxWindow *refreshConcurrentlyMatViewFactory::StartDialog(frmMain *form, pgObject *obj)
+{
+	form->StartMsg(_("Refreshing data concurrently"));
+
+	((pgView *)obj)->RefreshMatView(true);
+	wxTreeItemId item = form->GetBrowser()->GetSelection();
+	if (obj == form->GetBrowser()->GetObject(item))
+		obj->ShowTreeDetail(form->GetBrowser(), 0, form->GetProperties());
+
+	form->EndMsg();
+
+	return 0;
+}
+
+
+bool refreshConcurrentlyMatViewFactory::CheckEnable(pgObject *obj)
+{
+	return obj && obj->IsCreatedBy(viewFactory)
+	       && ((pgView *)obj)->GetMaterializedView()
+	       && ((pgView *)obj)->GetConnection()->BackendMinimumVersion(9, 4);;
+}

@@ -73,12 +73,14 @@
 #include "dlg/dlgDatabase.h"
 #include "dlg/dlgSearchObject.h"
 #include "schema/pgTable.h"
+#include "schema/pgView.h"
 #include "schema/pgFunction.h"
 #include "schema/pgIndex.h"
 #include "schema/pgTrigger.h"
 #include "schema/pgRole.h"
 #include "schema/pgRule.h"
 #include "schema/pgServer.h"
+#include "schema/pgTablespace.h"
 #include "slony/slCluster.h"
 #include "slony/slSet.h"
 #include "schema/pgForeignKey.h"
@@ -306,6 +308,8 @@ void frmMain::CreateMenus()
 	viewMenu->AppendSeparator();
 	actionFactory *refFact = new refreshFactory(menuFactories, viewMenu, toolBar);
 	new countRowsFactory(menuFactories, viewMenu, 0);
+	new refreshMatViewFactory(menuFactories, viewMenu, 0);
+	new refreshConcurrentlyMatViewFactory(menuFactories, viewMenu, 0);
 	new executePgstattupleFactory(menuFactories, viewMenu, 0);
 	new executePgstatindexFactory(menuFactories, viewMenu, 0);
 	new enabledisableRuleFactory(menuFactories, toolsMenu, 0);
@@ -382,6 +386,7 @@ void frmMain::CreateMenus()
 	new resetTableStatsFactory(menuFactories, editMenu, 0);
 	new resetFunctionStatsFactory(menuFactories, editMenu, 0);
 	new reassignDropOwnedFactory(menuFactories, editMenu, 0);
+	new moveTablespaceFactory(menuFactories, editMenu, 0);
 	new searchObjectFactory(menuFactories, editMenu, 0);
 	editMenu->AppendSeparator();
 
