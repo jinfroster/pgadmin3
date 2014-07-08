@@ -226,11 +226,11 @@ void dlgSearchObject::RestoreSettings()
 {
 	wxString val, mapkey;
 	bool bVal;
-	
+
 	// Pattern
 	settings->Read(wxT("SearchObject/Pattern"), &val, wxEmptyString);
 	txtPattern->SetValue(val);
-	
+
 	// Type
 	settings->Read(wxT("SearchObject/Type"), &val, wxT("All types"));
 	mapkey = getMapKeyByValue(val);
@@ -249,11 +249,11 @@ void dlgSearchObject::RestoreSettings()
 	// names
 	settings->Read(wxT("SearchObject/Names"), &bVal, true);
 	chkNames->SetValue(bVal);
-	
+
 	// definitions
 	settings->Read(wxT("SearchObject/Definitions"), &bVal, false);
 	chkDefinitions->SetValue(bVal);
-	
+
 	// comments
 	settings->Read(wxT("SearchObject/Comments"), &bVal, false);
 	chkComments->SetValue(bVal);
@@ -324,6 +324,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 	if (!(chkNames->GetValue() || chkDefinitions->GetValue() || chkComments->GetValue()))
 		return; // should not happen
 
+	wxBusyCursor wait;
 	ToggleBtnSearch(false);
 	if (statusBar)
 		statusBar->SetStatusText(_("Searching..."));
