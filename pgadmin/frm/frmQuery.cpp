@@ -134,6 +134,7 @@ BEGIN_EVENT_TABLE(frmQuery, pgFrame)
 	EVT_MENU(MNU_SHOWLINEENDS,      frmQuery::OnShowLineEnds)
 	EVT_MENU(MNU_SHOWLINENUMBER,    frmQuery::OnShowLineNumber)
 	EVT_MENU(MNU_FAVOURITES_ADD,    frmQuery::OnAddFavourite)
+	EVT_MENU(MNU_FAVOURITES_INJECT, frmQuery::OnInjectFavourite)
 	EVT_MENU(MNU_FAVOURITES_MANAGE, frmQuery::OnManageFavourites)
 	EVT_MENU(MNU_MACROS_MANAGE,     frmQuery::OnMacroManage)
 	EVT_MENU(MNU_DATABASEBAR,       frmQuery::OnToggleDatabaseBar)
@@ -324,6 +325,7 @@ frmQuery::frmQuery(frmMain *form, const wxString &_title, pgConn *_conn, const w
 
 	favouritesMenu = new wxMenu();
 	favouritesMenu->Append(MNU_FAVOURITES_ADD, _("Add favourite..."), _("Add current query to favourites"));
+	favouritesMenu->Append(MNU_FAVOURITES_INJECT, _("Inject\tF2"), _("Replace a word under cursor with a favourite with same name"));
 	favouritesMenu->Append(MNU_FAVOURITES_MANAGE, _("Manage favourites..."), _("Edit and delete favourites"));
 	favouritesMenu->AppendSeparator();
 	favourites = 0L;
@@ -1636,7 +1638,7 @@ void frmQuery::OnHelp(wxCommandEvent &event)
 {
 	wxString page;
 	wxString query = sqlQuery->GetSelectedText();
-	if (query.IsNull())
+	if (query.IsEmpty())
 	{
 		// get the word under cursor:
 		int curPos = sqlQuery->GetCurrentPos();
@@ -2074,6 +2076,7 @@ void frmQuery::updateMenu(bool allowUpdateModelSize)
 	editMenu->Enable(MNU_FIND, canFind);
 
 	favouritesMenu->Enable(MNU_FAVOURITES_ADD, canAddFavourite);
+	favouritesMenu->Enable(MNU_FAVOURITES_INJECT, canAddFavourite); // these two use the same criteria
 	favouritesMenu->Enable(MNU_FAVOURITES_MANAGE, canManageFavourite);
 }
 
@@ -2085,9 +2088,9 @@ void frmQuery::UpdateFavouritesList()
 
 	favourites = queryFavouriteFileProvider::LoadFavourites(true);
 
-	while (favouritesMenu->GetMenuItemCount() > 3)
+	while (favouritesMenu->GetMenuItemCount() > 4) // there are 3 static items + separator above
 	{
-		favouritesMenu->Destroy(favouritesMenu->GetMenuItems()[3]);
+		favouritesMenu->Destroy(favouritesMenu->GetMenuItems()[4]);
 	}
 
 	favourites->AppendAllToMenu(favouritesMenu, MNU_FAVOURITES_MANAGE + 1);
@@ -2125,6 +2128,41 @@ void frmQuery::OnAddFavourite(wxCommandEvent &event)
 		// Changed something requiring rollback
 		mainForm->UpdateAllFavouritesList();
 	}
+}
+
+
+void frmQuery::OnInjectFavourite(wxCommandEvent &event)
+{
+	queryFavouriteItem *fav;
+	bool selected = true;
+	int startPos, endPos;
+	wxString name = sqlQuery->GetSelectedText();
+
+	if (name.IsEmpty())
+	{
+		// get the word under cursor:
+		int curPos = sqlQuery->GetCurrentPos();
+		startPos = sqlQuery->WordStartPosition(curPos, true);
+		endPos = sqlQuery->WordEndPosition(curPos, true);
+		name = sqlQuery->GetTextRange(startPos, endPos);
+		selected = false;
+	}
+	name.Trim(false).Trim(true);
+	if (name.IsEmpty())
+		return;
+
+	// search for favourite with this name
+	fav = favourites->FindFavourite(name);
+	if (!fav)
+		return;
+
+	// replace selection (or current word) with it's contents
+	//wxLogInfo(wxT("frmQuery::OnReplaceFavourite(): name=[%s] contents=[%s]"), name, fav->GetContents());
+	sqlQuery->BeginUndoAction();
+	if (!selected)
+		sqlQuery->SetSelection(startPos, endPos);
+	sqlQuery->ReplaceSelection(fav->GetContents());
+	sqlQuery->EndUndoAction();
 }
 
 
