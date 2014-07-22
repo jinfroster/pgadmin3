@@ -625,10 +625,8 @@ frmQuery::frmQuery(frmMain *form, const wxString &_title, pgConn *_conn, const w
 		changed = false;
 		origin = ORIGIN_INITIAL;
 		/* _title if not empty should contain displayName of base object for the query.
-		   It's pretty good for a proposed filename if the user chooses to Save As.
-		   I'd just strip off empty square brackets for a function. */
+		   It's pretty good for a proposed filename if the user chooses to Save As. */
 		lastFilename = _title;
-		lastFilename.Replace(wxT("()"), wxEmptyString);
 		setExtendedTitle();
 	}
 

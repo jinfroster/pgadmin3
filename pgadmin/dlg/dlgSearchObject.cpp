@@ -193,6 +193,7 @@ dlgSearchObject::dlgSearchObject(frmMain *p, pgDatabase *db, pgObject *obj)
 
 dlgSearchObject::~dlgSearchObject()
 {
+	SaveSettings();
 	SavePosition();
 }
 
@@ -915,12 +916,12 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 	}
 
 	if (statusBar)
-        {
+	{
 		if (i > 0)
 			statusBar->SetStatusText(wxString::Format(wxPLURAL("Found %d item", "Found %d items",i), i));
 		else
 			statusBar->SetStatusText(_("Nothing was found"));
-        }
+	}
 
 	ToggleBtnSearch(true);
 }
@@ -945,7 +946,6 @@ wxString dlgSearchObject::TranslatePath(wxString &path)
 
 void dlgSearchObject::OnCancel(wxCommandEvent &ev)
 {
-	SaveSettings();
 	if (IsModal())
 		EndModal(wxID_CANCEL);
 	else
