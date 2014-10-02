@@ -2083,7 +2083,7 @@ void frmQuery::UpdateFavouritesList()
 {
 	if (IsVisible() && menuBar->FindMenu(_("Fav&ourites")) == wxNOT_FOUND)
 		return;
-	
+
 	if (favourites)
 		delete favourites;
 
@@ -2369,6 +2369,7 @@ void frmQuery::OpenLastFile()
 	{
 		sqlQuery->SetText(str);
 		sqlQuery->Colourise(0, str.Length());
+		sqlQuery->EmptyUndoBuffer();
 		wxSafeYield();                            // needed to process sqlQuery modify event
 		changed = false;
 		origin = ORIGIN_FILE;
