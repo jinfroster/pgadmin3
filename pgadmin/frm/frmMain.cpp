@@ -287,6 +287,7 @@ void frmMain::CreateMenus()
 	wxMenu *cfgMenu = new wxMenu();
 	helpMenu = new wxMenu();
 	newContextMenu = new wxMenu();
+	objectBrowserMenu = new wxMenu();
 
 	toolBar = new ctlMenuToolbar(this, -1, wxDefaultPosition, wxDefaultSize, wxTB_FLAT | wxTB_NODIVIDER );
 	toolBar->SetToolBitmapSize(wxSize(32, 32));
@@ -300,12 +301,17 @@ void frmMain::CreateMenus()
 	fileMenu->AppendSeparator();
 	new addServerFactory(menuFactories, fileMenu, toolBar);
 
+	objectBrowserMenu->Append(MNU_BOOKMARKTOGGLE, _("&Toggle bookmark\tCtrl-F2"),     _("Set/unset bookmark for current tree item."));
+	objectBrowserMenu->Append(MNU_BOOKMARKNEXT, _("&Next bookmark\tF2"),     _("Go to next item."));
+	objectBrowserMenu->Append(MNU_BOOKMARKPREV, _("&Previous bookmark\tShift-F2"),     _("Go to next item."));
+
 	viewMenu->Append(MNU_OBJECTBROWSER, _("&Object browser\tCtrl-Alt-O"),     _("Show or hide the object browser."), wxITEM_CHECK);
 	viewMenu->Append(MNU_SQLPANE, _("&SQL pane\tCtrl-Alt-S"),     _("Show or hide the SQL pane."), wxITEM_CHECK);
 	viewMenu->Append(MNU_TOOLBAR, _("&Tool bar\tCtrl-Alt-T"),     _("Show or hide the tool bar."), wxITEM_CHECK);
 	viewMenu->AppendSeparator();
 	viewMenu->Append(MNU_DEFAULTVIEW, _("&Default view\tCtrl-Alt-V"),     _("Restore the default view."));
 	viewMenu->AppendSeparator();
+	viewMenu->AppendSubMenu(objectBrowserMenu, _("&Object browser"),     _("Show or hide the object browser."));
 	actionFactory *refFact = new refreshFactory(menuFactories, viewMenu, toolBar);
 	new countRowsFactory(menuFactories, viewMenu, 0);
 	new refreshMatViewFactory(menuFactories, viewMenu, 0);
@@ -523,12 +529,16 @@ void frmMain::CreateMenus()
 	statusBar->SetStatusText(_("Ready."), 1);
 	statusBar->SetStatusText(_("0 Secs"), 2);
 
-	wxAcceleratorEntry entries[4];
+	wxAcceleratorEntry entries[7];
 	entries[0].Set(wxACCEL_NORMAL, WXK_F5, refFact->GetId());
 	entries[1].Set(wxACCEL_NORMAL, WXK_DELETE, MNU_DELETE);
 	entries[2].Set(wxACCEL_NORMAL, WXK_F1, helpFact->GetId());
 	entries[3].Set(wxACCEL_SHIFT, WXK_F10, MNU_CONTEXTMENU);
-	wxAcceleratorTable accel(4, entries);
+	entries[4].Set(wxACCEL_CTRL, WXK_F2, MNU_BOOKMARKTOGGLE);
+	entries[5].Set(wxACCEL_NORMAL, WXK_F2, MNU_BOOKMARKNEXT);
+	entries[6].Set(wxACCEL_SHIFT, WXK_F2, MNU_BOOKMARKPREV);
+
+	wxAcceleratorTable accel(7, entries);
 
 	SetAcceleratorTable(accel);
 
@@ -1396,6 +1406,59 @@ void frmMain::OnSSHTunnelEvent(wxCommandEvent &event)
 }
 #endif
 
+void frmMain::OnToggleBrowserBookmark(wxCommandEvent &event)
+{
+	wxLogInfo(wxT("frmMain::BrowserBookmarkToggle"));
+	wxString currentPath = GetCurrentNodePath();
+	wxLogInfo(wxT("  currentPath=%s"), currentPath);
+	int i = browserBookmarks.Index(currentPath);
+	if (i == wxNOT_FOUND) {
+		browserBookmarkIdx = browserBookmarks.Add(currentPath);
+		SetStatusText(_("Object browser bookmark added."));
+	}
+	else {
+		browserBookmarks.RemoveAt(i);
+		if (browserBookmarkIdx > i)
+			browserBookmarkIdx--;
+		SetStatusText(_("Object browser bookmark removed."));
+	}
+}
+
+void frmMain::OnNextBrowserBookmark(wxCommandEvent &event)
+{
+	browserBookmarkIdx++;
+	GotoBrowserBookmark();
+}
+
+void frmMain::OnPrevBrowserBookmark(wxCommandEvent &event)
+{
+	browserBookmarkIdx--;
+	GotoBrowserBookmark();
+}
+
+void frmMain::GotoBrowserBookmark()
+{
+	wxLogInfo(wxT("frmMain::GotoBrowserBookmark"));
+	int cnt = browserBookmarks.GetCount();
+	if (cnt == 0) {
+		SetStatusText(_("No Object browser bookmarks."));
+		return;
+	}
+
+	if (browserBookmarkIdx >= cnt)
+		browserBookmarkIdx = 0;
+	else if (browserBookmarkIdx < 0)
+		browserBookmarkIdx = cnt - 1;
+
+	wxString path = browserBookmarks[browserBookmarkIdx];
+	if (!SetCurrentNode(browser->GetRootItem(), path)) {
+		browserBookmarks.RemoveAt(browserBookmarkIdx--);
+		wxString msg;
+		msg.Printf(_("Failed to go to bookmark %d, removed."), browserBookmarkIdx);
+		SetStatusText(msg);
+
+	}
+}
 /////////////////////////////////////////
 
 

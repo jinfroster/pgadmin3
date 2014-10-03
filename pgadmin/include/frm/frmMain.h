@@ -185,7 +185,8 @@ private:
 	ctlAuiNotebook *listViews;
 	ctlSQLBox *sqlPane;
 	wxMenu *newMenu, *debuggingMenu, *reportMenu, *toolsMenu, *pluginsMenu, *viewMenu,
-	       *treeContextMenu, *newContextMenu, *slonyMenu, *scriptingMenu, *viewDataMenu;
+	       *treeContextMenu, *newContextMenu, *slonyMenu, *scriptingMenu, *viewDataMenu,
+	       *objectBrowserMenu;
 	pgServerCollection *serversObj;
 
 	pluginUtilityFactory *lastPluginUtility;
@@ -201,6 +202,8 @@ private:
 	wxStopWatch stopwatch;
 	wxString timermsg;
 	long msgLevel;
+	wxArrayString browserBookmarks;
+	int browserBookmarkIdx;
 
 	bool m_refreshing;
 
@@ -225,6 +228,9 @@ private:
 	void OnAuiUpdate(wxAuiManagerEvent &event);
 	void OnAuiNotebookPageClose(wxAuiNotebookEvent &event);
 	void OnContextMenu(wxCommandEvent &event);
+	void OnToggleBrowserBookmark(wxCommandEvent &event);
+	void OnNextBrowserBookmark(wxCommandEvent &event);
+	void OnPrevBrowserBookmark(wxCommandEvent &event);
 
 	void OnPageChange(wxAuiNotebookEvent &event);
 	void OnPropSelChanged(wxListEvent &event);
@@ -256,7 +262,7 @@ private:
 
 	void GetExpandedChildNodes(wxTreeItemId node, wxArrayString &expandedNodes);
 	void ExpandChildNodes(wxTreeItemId node, wxArrayString &expandedNodes);
-
+	void GotoBrowserBookmark();
 
 	void PopulatePluginButtonMenu(wxCommandEvent &event);
 
