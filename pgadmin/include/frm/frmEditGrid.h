@@ -333,6 +333,7 @@ private:
 	wxString tableName;
 	wxString primaryKeyColNumbers;
 	wxString orderBy;
+	bool autoOrderBy;
 	wxString rowFilter;
 	int limit;
 	sqlCell *editorCell;
