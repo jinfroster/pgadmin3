@@ -505,7 +505,7 @@
                   </object>
                   <object class="sizeritem">
                     <object class="wxStaticText" name="stExtFormatCmd">
-                      <label>External formatting utlity</label>
+                      <label>External formatting command</label>
                     </object>
                     <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
                     <border>4</border>
@@ -514,7 +514,7 @@
                     <object class="wxFilePickerCtrl" name="pickerExtFormatCmd">
                       <message>Select utility to format text</message>
                       <style>wxFLP_OPEN|wxFLP_USE_TEXTCTRL</style>
-                      <tooltip>A command line utility which reads STDIN and directs output to STDOUT.</tooltip>
+                      <tooltip>A command line utility that reads STDIN, writes STDOUT and exits with code 0 on success.</tooltip>
                     </object>
                     <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
                     <border>4</border>

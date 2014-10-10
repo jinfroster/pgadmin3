@@ -69,7 +69,7 @@ public:
 	}
 	bool BlockComment(bool uncomment = false);
 	void UpdateLineNumber();
-	void ExternalFormat();
+	wxString ExternalFormat();
 
 	CharacterRange RegexFindText(int minPos, int maxPos, const wxString &text);
 
@@ -86,7 +86,8 @@ private:
 	pgConn *m_database;
 	bool m_autoIndent, m_autocompDisabled;
 	sysProcess *process;
-	wxString processOutput;
+	wxString processOutput, processErrorOutput;
+	int processExitCode;
 
 	friend class QueryPrintout;
 };

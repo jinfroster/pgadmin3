@@ -294,7 +294,7 @@ frmQuery::frmQuery(frmMain *form, const wxString &_title, pgConn *_conn, const w
 	formatMenu->Append(MNU_COMMENT_TEXT, _("Co&mment Text\tCtrl-K"), _("Comment out the selected text"));
 	formatMenu->Append(MNU_UNCOMMENT_TEXT, _("Uncomme&nt Text\tCtrl-Shift-K"), _("Uncomment the selected text"));
 	formatMenu->AppendSeparator();
-	formatMenu->Append(MNU_EXTERNALFORMAT, _("External Format\tCtrl-Shift-F"), _("Call external format tool"));
+	formatMenu->Append(MNU_EXTERNALFORMAT, _("External Format\tCtrl-Shift-F"), _("Call external formatting command"));
 	editMenu->AppendSubMenu(formatMenu, _("F&ormat"));
 	editMenu->Append(MNU_LINEENDS, _("&Line ends"), lineEndMenu);
 
@@ -3570,8 +3570,11 @@ void frmQuery::OnUncommentText(wxCommandEvent &event)
 
 void frmQuery::OnExternalFormat(wxCommandEvent &event)
 {
-	if (FindFocus()->GetId() == CTL_SQLQUERY)
-		sqlQuery->ExternalFormat();
+	if (FindFocus()->GetId() == CTL_SQLQUERY) {
+		wxBusyCursor wait;
+		SetStatusText(_("Running formatting command..."), STATUSPOS_MSGS);
+		SetStatusText(sqlQuery->ExternalFormat(), STATUSPOS_MSGS);
+	}
 }
 
 wxBitmap frmQuery::CreateBitmap(const wxColour &colour)

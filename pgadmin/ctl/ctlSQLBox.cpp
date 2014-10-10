@@ -564,16 +564,20 @@ void ctlSQLBox::OnEndProcess(wxProcessEvent &ev)
 {
 	if (process)
 	{
-		wxString error = process->ReadErrorStream();
+		processExitCode = ev.GetExitCode();
+		processErrorOutput = process->ReadErrorStream();
 		processOutput += process->ReadInputStream();
 		delete process;
 		process = 0;
 	}
 }
 
-void ctlSQLBox::ExternalFormat()
+wxString ctlSQLBox::ExternalFormat()
 {
-	processOutput = wxEmptyString;
+	wxString msg;
+	wxString formatCmd = settings->GetExtFormatCmd();
+	if (formatCmd.IsEmpty())
+		return _("Formatting command not set up.");
 
 	bool isSelected = true;
 	wxString processInput = GetSelectedText();
@@ -583,27 +587,59 @@ void ctlSQLBox::ExternalFormat()
 		isSelected = false;
 	}
 	if (processInput.IsEmpty())
-		return;
+		return _("Nothing to format.");
 
-	wxString formatCmd = settings->GetExtFormatCmd();
+	if (process) {
+		//sysProcess::Kill(process->GetPid());
+		delete process;
+		process = 0;
+	}
+	processOutput = wxEmptyString;
+	processErrorOutput = wxEmptyString;
+	processExitCode = 0;
 
 	process = sysProcess::Create(formatCmd, this, NULL, wxConvUTF8);
+	if (!process) {
+		msg.Printf(_("Couldn't run formatting command: %s"), formatCmd);
+		return msg;
+	}
 	process->WriteOutputStream(processInput);
 	process->CloseOutput();
 
-	while (process)
+	int timeoutMs = 5000;
+	int timeoutStepMs = 50;
+	int i=0;
+	while (process && i*timeoutStepMs < timeoutMs)
 	{
 		wxSafeYield();
 		if (process)
 			processOutput += process->ReadInputStream();
 		wxSafeYield();
-		wxMilliSleep(10);
+		wxMilliSleep(timeoutStepMs);
+		i++;
+	}
+
+	if (process) {
+		//sysProcess::Kill(process->GetPid());
+		delete process;
+		process = 0;
+		return _("Formatting command not responding.");
+	}
+
+	if (processExitCode != 0) {
+		msg.Printf(_("Formating command error %d: %s"), processExitCode, processErrorOutput);
+		return msg;
+	}
+
+	if (processOutput.IsEmpty()) {
+		return _("Formatting command error: Output is empty.");
 	}
 
 	if (isSelected)
 		ReplaceSelection(processOutput);
 	else
 		SetText(processOutput);
+	return _("Formatting complete.");
 }
 
 void ctlSQLBox::OnPositionStc(wxStyledTextEvent &event)

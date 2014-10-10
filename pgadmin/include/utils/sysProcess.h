@@ -31,7 +31,7 @@ public:
 	static sysProcess *Create(const wxString &exec, wxEvtHandler *evh = 0, wxArrayString *env = 0, wxMBConv &conv = wxConvLibc);
 
 private:
-	int pid;
+	long pid;
 	wxMBConv& m_conv;
 	void OnTerminate(int pid, int status) const;
 	wxString ReadStream(wxInputStream *input);
