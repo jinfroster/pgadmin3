@@ -64,7 +64,7 @@ public:
 	void SetCondition(const wxString &str)
 	{
 		if (condition.Length() == 0) condition = str;
-		else condition += wxT(" ") + str;
+		else condition += wxT("\n") + str;
 	}
 	long GetLevel()
 	{

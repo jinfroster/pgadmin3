@@ -159,7 +159,7 @@ void ExplainCanvas::SetExplainString(const wxString &str)
 			{
 				wxLineShape *l = new ExplainLine(s, upper);
 				l->Show(true);
-				AddShape(l);
+				InsertShape(l);
 			}
 		}
 		else
@@ -294,17 +294,24 @@ ExplainText::ExplainText(ExplainPopup *parent, ExplainShape *s) : wxWindow(paren
 
 	dc.GetTextExtent(m_detail, &w2, &h);
 	if (w1 < w2)    w1 = w2;
-	dc.GetTextExtent(m_condition, &w2, &h);
-	if (w1 < w2)    w1 = w2;
+
+	int n = 2;
+	if (!m_condition.IsEmpty()) {
+		wxStringTokenizer lines(m_condition, wxT("\n"));
+		while (lines.HasMoreTokens()) {
+			n++;
+			wxString tmp = lines.GetNextToken();
+			dc.GetTextExtent(tmp, &w2, &h);
+			if (w1 < w2)    w1 = w2;
+		}
+	}
+
 	dc.GetTextExtent(m_cost, &w2, &h);
 	if (w1 < w2)    w1 = w2;
 	dc.GetTextExtent(m_actual, &w2, &h);
 	if (w1 < w2)    w1 = w2;
 
-	int n = 2;
 	if (!m_detail.IsEmpty())
-		n++;
-	if (!m_condition.IsEmpty())
 		n++;
 	if (!m_cost.IsEmpty())
 		n++;
@@ -366,8 +373,13 @@ void ExplainText::OnPaint(wxPaintEvent &ev)
 
 	if (!m_condition.IsEmpty())
 	{
-		y += yoffs;
-		dc.DrawText(m_condition, x, y);
+		wxString str;
+		wxStringTokenizer lines(m_condition, wxT("\n"));
+		while (lines.HasMoreTokens()) {
+			wxString tmp = lines.GetNextToken();
+			y += yoffs;
+			dc.DrawText(tmp, x, y);
+		}
 	}
 	if (!m_cost.IsEmpty())
 	{

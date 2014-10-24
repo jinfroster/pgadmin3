@@ -367,11 +367,11 @@ ExplainShape *ExplainShape::Create(long level, ExplainShape *last, const wxStrin
 
 	// DML
 	else if (token == wxT("Insert"))
-		s = new ExplainShape(*ex_insert_png_img, descr);
+		s = new ExplainShape(*ex_insert_png_img, descr, 2, 1);
 	else if (token == wxT("Update"))
-		s = new ExplainShape(*ex_update_png_img, descr);
+		s = new ExplainShape(*ex_update_png_img, descr, 2, 1);
 	else if (token == wxT("Delete"))
-		s = new ExplainShape(*ex_delete_png_img, descr);
+		s = new ExplainShape(*ex_delete_png_img, descr, 2, 1);
 
 	// Greenplum additions
 	else if (token == wxT("Gather") && token2 == wxT("Motion"))
@@ -495,7 +495,7 @@ void ExplainLine::OnDraw(wxDC &dc)
 {
 	if (m_lineControlPoints)
 	{
-		dc.SetPen(*wxThePenList->FindOrCreatePen(*wxBLACK, 1, wxSOLID));
+		dc.SetPen(*wxThePenList->FindOrCreatePen(wxColour(120,120,120), 1, wxSOLID));
 		dc.SetBrush(*wxTheBrushList->FindOrCreateBrush(*wxLIGHT_GREY, wxSOLID));
 
 		wxPoint *points = new wxPoint[11];
