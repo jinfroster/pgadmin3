@@ -25,6 +25,7 @@
 #include "images/ex_bmp_heap.pngc"
 #include "images/ex_bmp_index.pngc"
 #include "images/ex_cte_scan.pngc"
+#include "images/ex_delete.pngc"
 #include "images/ex_group.pngc"
 #include "images/ex_hash.pngc"
 #include "images/ex_hash_anti_join.pngc"
@@ -35,6 +36,7 @@
 #include "images/ex_hash_setop_intersect_all.pngc"
 #include "images/ex_hash_setop_unknown.pngc"
 #include "images/ex_index_scan.pngc"
+#include "images/ex_insert.pngc"
 #include "images/ex_join.pngc"
 #include "images/ex_limit.pngc"
 #include "images/ex_materialize.pngc"
@@ -54,6 +56,7 @@
 #include "images/ex_tid_scan.pngc"
 #include "images/ex_unique.pngc"
 #include "images/ex_unknown.pngc"
+#include "images/ex_update.pngc"
 #include "images/ex_window_aggregate.pngc"
 #include "images/ex_worktable_scan.pngc"
 
@@ -361,6 +364,14 @@ ExplainShape *ExplainShape::Create(long level, ExplainShape *last, const wxStrin
 		s = new ExplainShape(*ex_recursive_union_png_img, descr);
 	else if (token == wxT("WindowAgg"))
 		s = new ExplainShape(*ex_window_aggregate_png_img, descr);
+
+	// DML
+	else if (token == wxT("Insert"))
+		s = new ExplainShape(*ex_insert_png_img, descr);
+	else if (token == wxT("Update"))
+		s = new ExplainShape(*ex_update_png_img, descr);
+	else if (token == wxT("Delete"))
+		s = new ExplainShape(*ex_delete_png_img, descr);
 
 	// Greenplum additions
 	else if (token == wxT("Gather") && token2 == wxT("Motion"))

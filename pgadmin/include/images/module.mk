@@ -107,6 +107,7 @@ pgadmin3_SOURCES += \
 	include/images/ex_bmp_heap.png \
 	include/images/ex_bmp_index.png \
 	include/images/ex_cte_scan.png \
+	include/images/ex_delete.png \
 	include/images/ex_group.png \
 	include/images/ex_hash.png \
 	include/images/ex_hash_anti_join.png \
@@ -117,6 +118,7 @@ pgadmin3_SOURCES += \
 	include/images/ex_hash_setop_intersect_all.png \
 	include/images/ex_hash_setop_unknown.png \
 	include/images/ex_index_scan.png \
+	include/images/ex_insert.png \
 	include/images/ex_join.png \
 	include/images/ex_limit.png \
 	include/images/ex_materialize.png \
@@ -291,6 +293,7 @@ pgadmin3_SOURCES += \
 	include/images/unchecked.png \
 	include/images/unique.png \
 	include/images/up.png \
+	include/images/update.png \
 	include/images/user.png \
 	include/images/usermapping.png \
 	include/images/usermapping-sm.png \
