@@ -37,6 +37,14 @@ Changes
 
 Date       Dev Ver     Change details
 ---------- --- ------  --------------
+2014-10-28 AV  1.20.0  Support smallserial columns in Edit Data Window
+                       [J.F. Oster]
+2014-10-28 AV  1.20.0  Restore the user specified size on the grid (which
+                       contains the result) in Query windows to fix an issue
+                       related to the column size is too narrow on subsequent
+                       Explain execution [J.F. Oster]
+2014-10-28 AV  1.20.0  Empty the Undo/Redo history everytime new file is opened
+                       [J.F. Oster]
 2014-10-28 AV  1.20.0  Added accelerator F8 for 'Execute to file' in the Query
                        window [Mads Jensen]
 2014-10-28 AV  1.20.0  Beautify the query shown in the SQL pane for the
