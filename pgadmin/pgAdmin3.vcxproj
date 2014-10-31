@@ -737,6 +737,8 @@
     <ClCompile Include="ctl\ctlProgressStatusBar.cpp" />
     <ClCompile Include="ctl\explainCanvas.cpp" />
     <ClCompile Include="ctl\explainShape.cpp" />
+    <ClCompile Include="ctl\sqlGridEditor.cpp" />
+    <ClCompile Include="ctl\sqlTable.cpp" />
     <ClCompile Include="ctl\timespin.cpp" />
     <ClCompile Include="ctl\xh_calb.cpp" />
     <ClCompile Include="ctl\xh_ctlchecktreeview.cpp" />
@@ -2834,6 +2836,8 @@
     <ClInclude Include="include\ctl\ctlTree.h" />
     <ClInclude Include="include\ctl\ctlProgressStatusBar.h" />
     <ClInclude Include="include\ctl\explainCanvas.h" />
+    <ClInclude Include="include\ctl\sqlGridEditor.h" />
+    <ClInclude Include="include\ctl\sqlTable.h" />
     <ClInclude Include="include\ctl\timespin.h" />
     <ClInclude Include="include\ctl\wxgridsel.h" />
     <ClInclude Include="include\ctl\xh_calb.h" />

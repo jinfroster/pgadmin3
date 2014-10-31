@@ -82,6 +82,9 @@ class sqlResultTable : public wxGridTableBase
 {
 public:
 	sqlResultTable();
+	~sqlResultTable();
+
+	bool GetIsNull(int row, int col);
 	wxString GetValue(int row, int col);
 	int GetNumberRows();
 	int GetNumberCols();
@@ -106,9 +109,19 @@ public:
 	{
 		return true;
 	}
+	wxGridCellAttr *GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind);
 
 private:
 	pgQueryThread *thread;
+
+	wxColour colourOdd;
+	wxColour colourOddNull;
+	wxColour colourEven;
+	wxColour colourEvenNull;
+	wxGridCellAttr *attrOdd;
+	wxGridCellAttr *attrOddNull;
+	wxGridCellAttr *attrEven;
+	wxGridCellAttr *attrEvenNull;
 };
 
 #endif

@@ -312,6 +312,20 @@ void ctlSQLResult::OnGridSelect(wxGridRangeSelectEvent &event)
 	SetFocus();
 }
 
+
+
+bool sqlResultTable::GetIsNull(int row, int col)
+{
+	bool isNull = false;
+	if (col >=0 && thread && thread->DataValid() && thread->DataSet()->NumRows() >= row + 1)
+	{
+		thread->DataSet()->Locate(row + 1);
+		if (thread->DataSet()->IsNull(col))
+			isNull = true;
+	}
+	return isNull;
+}
+
 wxString sqlResultTable::GetValue(int row, int col)
 {
 	if (thread && thread->DataValid())
@@ -328,7 +342,7 @@ wxString sqlResultTable::GetValue(int row, int col)
 				wxString s = wxEmptyString;
 				s = thread->DataSet()->GetVal(col);
 
-				if(thread->DataSet()->ColTypClass(col) == PGTYPCLASS_NUMERIC &&
+				if (thread->DataSet()->ColTypClass(col) == PGTYPCLASS_NUMERIC &&
 				        settings->GetDecimalMark().Length() > 0)
 				{
 					decimalMark = settings->GetDecimalMark();
@@ -350,6 +364,10 @@ wxString sqlResultTable::GetValue(int row, int col)
 					}
 					return s;
 				}
+				else if (thread->DataSet()->ColTypClass(col) == PGTYPCLASS_BOOL)
+				{
+					return StrToBool(thread->DataSet()->GetVal(col)) ? wxT("TRUE") : wxT("FALSE");
+				}
 				else
 				{
 					wxString data = thread->DataSet()->GetVal(col);
@@ -370,6 +388,28 @@ wxString sqlResultTable::GetValue(int row, int col)
 sqlResultTable::sqlResultTable()
 {
 	thread = NULL;
+
+	colourOdd = wxColour(255,255,255);
+	colourOddNull = wxColour(255,255,229);
+	colourEven = wxColour(229,255,229);
+	colourEvenNull = wxColour(242,255,229);
+
+	attrOdd = new wxGridCellAttr;
+	attrOdd->SetBackgroundColour(colourOdd);
+	attrOddNull = new wxGridCellAttr;
+	attrOddNull->SetBackgroundColour(colourOddNull);
+	attrEven = new wxGridCellAttr;
+	attrEven->SetBackgroundColour(colourEven);
+	attrEvenNull = new wxGridCellAttr;
+	attrEvenNull->SetBackgroundColour(colourEvenNull);
+}
+
+sqlResultTable::~sqlResultTable()
+{
+	attrOdd->DecRef();
+	attrOddNull->DecRef();
+	attrEven->DecRef();
+	attrEvenNull->DecRef();
 }
 
 int sqlResultTable::GetNumberRows()
@@ -395,3 +435,14 @@ int sqlResultTable::GetNumberCols()
 	return 0;
 }
 
+wxGridCellAttr *sqlResultTable::GetAttr(int row, int col, wxGridCellAttr::wxAttrKind  kind)
+{
+	wxGridCellAttr *attr;
+	if (GetIsNull(row, col))
+		attr =  ( row % 2 ) ? attrEvenNull : attrOddNull;
+	else
+		attr =  ( row % 2 ) ? attrEven : attrOdd;
+
+	attr->IncRef();
+	return attr;
+}
