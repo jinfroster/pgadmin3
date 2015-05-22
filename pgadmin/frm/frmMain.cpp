@@ -1410,7 +1410,7 @@ void frmMain::OnToggleBrowserBookmark(wxCommandEvent &event)
 {
 	wxLogInfo(wxT("frmMain::BrowserBookmarkToggle"));
 	wxString currentPath = GetCurrentNodePath();
-	wxLogInfo(wxT("  currentPath=%s"), currentPath);
+	wxLogInfo(wxT("  currentPath=")+currentPath);
 	int i = browserBookmarks.Index(currentPath);
 	if (i == wxNOT_FOUND) {
 		browserBookmarkIdx = browserBookmarks.Add(currentPath);

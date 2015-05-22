@@ -60,6 +60,16 @@ sysSettings::sysSettings(const wxString &name) : wxConfig(name)
 	}
 }
 
+sysSettings::~sysSettings()
+{
+
+	if(defaultSettings)
+	{
+		delete defaultSettings;
+		defaultSettings = NULL;
+	}
+}
+
 bool sysSettings::GetDisplayOption(const wxString &objtype, bool GetDefault)
 {
 	bool retval, def = true;
@@ -860,22 +870,8 @@ wxString sysSettings::GetHistoryFile()
 
 wxString sysSettings::GetExtFormatCmd()
 {
-	wxString s, tmp;
+	wxString s;
 
-#if wxCHECK_VERSION(2, 9, 5)
-	wxStandardPaths &stdp = wxStandardPaths::Get();
-#else
-	wxStandardPaths stdp;
-#endif
-	tmp = stdp.GetPluginsDir();
-#ifdef WIN32
-	// Poor Man's T-SQL Formatter (http://www.architectshack.com/PoorMansTSqlFormatter.ashx)
-	tmp += wxT("\\SqlFormatter.exe");
-#else
-	// Free SQL Formatter (http://sourceforge.net/projects/fsqlf/)
-	tmp += wxT("/fsqlf");
-#endif
-
-	Read(wxT("ExtFormatCmd"), &s, tmp);
+	Read(wxT("ExtFormatCmd"), &s, wxEmptyString);
 	return s;
 }

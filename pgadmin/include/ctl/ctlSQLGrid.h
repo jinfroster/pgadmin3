@@ -14,9 +14,6 @@
 
 // wxWindows headers
 #include <wx/grid.h>
-#include "ctl/sqlGridEditor.h"
-#include "ctl/sqlTable.h"
-#include "ctl/ctlMenuToolbar.h"
 
 
 class ctlSQLGrid : public wxGrid

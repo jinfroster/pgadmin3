@@ -45,7 +45,6 @@ sysProcess *sysProcess::Create(const wxString &exec, wxEvtHandler *evh, wxArrayS
 bool sysProcess::Run(const wxString &exec)
 {
 	pid = wxExecute(exec, wxEXEC_ASYNC, this);
-
 	return (pid != 0);
 }
 
@@ -85,7 +84,10 @@ wxString sysProcess::ReadErrorStream()
 
 void sysProcess::WriteOutputStream(const wxString &out)
 {
-	wxTextOutputStream tos(*GetOutputStream());
+	// With wxEOL_DOS (=wxEOL_NATIVE in Windows) WriteString() will turn each '\n'
+	//   into "\r\n", thus making "\r\n" a wrong "\r\r\n".
+	// With wxEOL_UNIX it passes EOL characters as-is, which is preferable.
+	wxTextOutputStream tos(*GetOutputStream(), wxEOL_UNIX);
 	tos.WriteString(out);
 }
 

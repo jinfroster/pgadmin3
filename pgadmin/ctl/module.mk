@@ -27,8 +27,6 @@ pgadmin3_SOURCES += \
         ctl/ctlProgressStatusBar.cpp \
         ctl/explainCanvas.cpp \
         ctl/explainShape.cpp \
-        ctl/sqlGridEditor.cpp \
-        ctl/sqlTable.cpp \
         ctl/timespin.cpp \
         ctl/xh_calb.cpp \
         ctl/xh_ctlcolourpicker.cpp \

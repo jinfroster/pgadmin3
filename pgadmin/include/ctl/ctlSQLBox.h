@@ -70,24 +70,28 @@ public:
 	bool BlockComment(bool uncomment = false);
 	void UpdateLineNumber();
 	wxString ExternalFormat();
+	void AbortProcess();
 
 	CharacterRange RegexFindText(int minPos, int maxPos, const wxString &text);
 
 	DECLARE_DYNAMIC_CLASS(ctlSQLBox)
 	DECLARE_EVENT_TABLE()
 
-private:
+protected:
+	void OnEndProcess(wxProcessEvent &ev);
 
+	sysProcess *process;
+	long processID;
+	wxString processOutput, processErrorOutput;
+	int processExitCode;
+
+private:
 	void OnPositionStc(wxStyledTextEvent &event);
 	void OnMarginClick(wxStyledTextEvent &event);
-	void OnEndProcess(wxProcessEvent &event);
 
 	dlgFindReplace *m_dlgFindReplace;
 	pgConn *m_database;
 	bool m_autoIndent, m_autocompDisabled;
-	sysProcess *process;
-	wxString processOutput, processErrorOutput;
-	int processExitCode;
 
 	friend class QueryPrintout;
 };
