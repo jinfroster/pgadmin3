@@ -18,11 +18,11 @@
 
 enum
 {
-    CTL_LBSECLABEL = 250,
-    CTL_ADDSECLABEL,
-    CTL_DELSECLABEL,
-    CTL_PROVIDER,
-    CTL_SECLABEL
+	CTL_LBSECLABEL = 250,
+	CTL_ADDSECLABEL,
+	CTL_DELSECLABEL,
+	CTL_PROVIDER,
+	CTL_SECLABEL
 };
 
 DECLARE_LOCAL_EVENT_TYPE(EVT_SECLABELPANEL_CHANGE, -1)
@@ -42,7 +42,7 @@ public:
 	void SetObject(pgObject *obj);
 	void Disable();
 	wxString GetSqlForSecLabels(wxString objecttype = wxEmptyString, wxString objectname = wxEmptyString);
-
+	void GetCurrentProviderLabelArray(wxArrayString &secLabels);
 protected:
 	wxNotebook *nbNotebook;
 	pgConn *connection;
@@ -56,7 +56,7 @@ protected:
 	void OnDelSeclabel(wxCommandEvent &ev);
 	void OnProviderChange(wxCommandEvent &ev);
 	void OnSeclabelChange(wxCommandEvent &ev);
-
+	void OnChange(wxCommandEvent &ev);
 	DECLARE_EVENT_TABLE()
 };
 

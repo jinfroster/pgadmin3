@@ -144,8 +144,10 @@ dlgProperty::dlgProperty(pgaFactory *f, frmMain *frame, const wxString &resName)
 
 	wxString db = wxT("Database");
 	wxString ts = wxT("Tablespace");
+	wxString rg = wxT("Resource Group");
 	enableSQL2 = db.Cmp(factory->GetTypeName()) == 0
-	             || ts.Cmp(factory->GetTypeName()) == 0;
+	             || ts.Cmp(factory->GetTypeName()) == 0
+	             || rg.Cmp(factory->GetTypeName()) == 0;
 
 	wxNotebookPage *page = nbNotebook->GetPage(0);
 	wxASSERT(page != NULL);
@@ -564,7 +566,9 @@ void dlgProperty::FillCombobox(const wxString &query, ctlComboBoxFix *cb1, ctlCo
 				cb2->Append(set->GetVal(0));
 			set->MoveNext();
 		}
+		delete set;
 	}
+
 }
 
 
@@ -1987,6 +1991,7 @@ void dlgDefaultSecurityProperty::AddUsers(ctlComboBox *combobox)
 
 				set->MoveNext();
 			}
+			delete set;
 		}
 	}
 }

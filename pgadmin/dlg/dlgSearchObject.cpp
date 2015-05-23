@@ -149,7 +149,8 @@ dlgSearchObject::dlgSearchObject(frmMain *p, pgDatabase *db, pgObject *obj)
 	cbSchema->Append(_("All schemas"));
 	cbSchema->Append(_("My schemas"));
 
-	if (obj->GetSchema()) {
+	if (obj->GetSchema())
+	{
 		if (obj->GetSchema()->GetSchema())
 			currentSchema = obj->GetSchema()->GetSchema()->GetName();
 		else
@@ -310,10 +311,10 @@ void dlgSearchObject::OnChange(wxCommandEvent &ev)
 void dlgSearchObject::ToggleBtnSearch(bool enable)
 {
 	if(enable &&
-	   /* When someone searches for operators, the limit of 3 characters is ignored */
-	   (aMap[cbType->GetValue()] == wxT("Operators") || txtPattern->GetValue().Length() >= 3) &&
-	   // At least one search mode enabled
-	   (chkNames->GetValue() || chkDefinitions->GetValue() || chkComments->GetValue()))
+	        /* When someone searches for operators, the limit of 3 characters is ignored */
+	        (aMap[cbType->GetValue()] == wxT("Operators") || txtPattern->GetValue().Length() >= 3) &&
+	        // At least one search mode enabled
+	        (chkNames->GetValue() || chkDefinitions->GetValue() || chkComments->GetValue()))
 	{
 		btnSearch->Enable();
 	}
@@ -360,19 +361,19 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		             wxT("	CASE   ")
 		             wxT("		WHEN c.relkind = 'r' THEN 'Tables'   ")
 		             wxT("		WHEN c.relkind = 'S' THEN 'Sequences'   ")
-		             wxT("		WHEN c.relkind = 'v' THEN 'Views'   ")
+		             wxT("		WHEN c.relkind IN ('v','m') THEN 'Views'   ")
 		             wxT("		ELSE 'should not happen'   ")
 		             wxT("	END AS type, c.relname AS objectname,  ")
 		             wxT("	':Schemas/' || n.nspname || '/' ||  ")
 		             wxT("	CASE   ")
 		             wxT("		WHEN c.relkind = 'r' THEN ':Tables'   ")
 		             wxT("		WHEN c.relkind = 'S' THEN ':Sequences'   ")
-		             wxT("		WHEN c.relkind = 'v' THEN ':Views'   ")
+		             wxT("		WHEN c.relkind IN ('v','m') THEN ':Views'   ")
 		             wxT("		ELSE 'should not happen'   ")
 		             wxT("	END || '/' || c.relname AS path, n.nspname  ")
 		             wxT("	FROM pg_class c  ")
 		             wxT("	LEFT JOIN pg_namespace n ON n.oid = c.relnamespace     ")
-		             wxT("	WHERE c.relkind in ('r','S','v')  ")
+		             wxT("	WHERE c.relkind in ('r','S','v','m')  ")
 		             wxT("	UNION  ")
 		             wxT("	SELECT 'Indexes', cls.relname, ':Schemas/' || n.nspname || '/:Tables/' || tab.relname || '/:Indexes/' || cls.relname, n.nspname ")
 		             wxT("	FROM pg_index idx ")
@@ -398,11 +399,11 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		             wxT("	case   ")
 		             wxT("		when t.relkind = 'r' then ':Tables'   ")
 		             wxT("		when t.relkind = 'S' then ':Sequences'   ")
-		             wxT("		when t.relkind = 'v' then ':Views'   ")
+		             wxT("		when t.relkind in ('v','m') then ':Views'   ")
 		             wxT("		else 'should not happen'   ")
 		             wxT("	end || '/' || t.relname || '/:Columns/' || a.attname AS path, n.nspname  ")
 		             wxT("	from pg_attribute a  ")
-		             wxT("	inner join pg_class t on a.attrelid = t.oid and t.relkind in ('r','v')  ")
+		             wxT("	inner join pg_class t on a.attrelid = t.oid and t.relkind in ('r','v','m')  ")
 		             wxT("	left join pg_namespace n on t.relnamespace = n.oid where a.attnum > 0  ")
 		             wxT("	union  ")
 		             wxT("	select 'Constraints', case when tf.relname is null then c.conname else c.conname || ' -> ' || tf.relname end, ':Schemas/' || n.nspname||'/:Tables/'||t.relname||'/:Constraints/'||case when tf.relname is null then c.conname else c.conname || ' -> ' || tf.relname end, n.nspname from pg_constraint c    ")
@@ -410,11 +411,11 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		             wxT("	left join pg_class tf on c.confrelid = tf.oid  ")
 		             wxT("	left join pg_namespace n on t.relnamespace = n.oid 						 ")
 		             wxT("	union  ")
-		             wxT("	select 'Rules', r.rulename, ':Schemas/' || n.nspname||case when t.relkind = 'v' then '/:Views/' else '/:Tables/' end||t.relname||'/:Rules/'|| r.rulename, n.nspname from pg_rewrite r  ")
+		             wxT("	select 'Rules', r.rulename, ':Schemas/' || n.nspname||case when t.relkind in ('v','m') then '/:Views/' else '/:Tables/' end||t.relname||'/:Rules/'|| r.rulename, n.nspname from pg_rewrite r  ")
 		             wxT("	left join pg_class t on r.ev_class = t.oid  ")
 		             wxT("	left join pg_namespace n on t.relnamespace = n.oid 						 ")
 		             wxT("	union  ")
-		             wxT("	select 'Triggers', tr.tgname, ':Schemas/' || n.nspname||case when t.relkind = 'v' then '/:Views/' else '/:Tables/' end||t.relname || '/:Triggers/' || tr.tgname, n.nspname from pg_trigger tr  ")
+		             wxT("	select 'Triggers', tr.tgname, ':Schemas/' || n.nspname||case when t.relkind in ('v','m') then '/:Views/' else '/:Tables/' end||t.relname || '/:Triggers/' || tr.tgname, n.nspname from pg_trigger tr  ")
 		             wxT("	left join pg_class t on tr.tgrelid = t.oid  ")
 		             wxT("	left join pg_namespace n on t.relnamespace = n.oid  ")
 		             wxT("	where ");
@@ -522,7 +523,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		             wxT("where lower(sn.objectname) like ") + txtPatternStr + wxT(" \n");
 	} // search names
 
-		// search definitions
+	// search definitions
 	if (chkDefinitions->GetValue())
 	{
 		if (nextMode)
@@ -541,13 +542,13 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		             wxT("case   ")
 		             wxT("	when t.relkind = 'r' then ':Tables' ")
 		             wxT("	when t.relkind = 'S' then ':Sequences' ")
-		             wxT("	when t.relkind = 'v' then ':Views' ")
+		             wxT("	when t.relkind in ('v','m') then ':Views' ")
 		             wxT("	else 'should not happen' ")
 		             wxT("end || '/' || t.relname || '/:Columns/' || a.attname AS path, n.nspname ")
 		             wxT("from pg_attribute a ")
 		             wxT("inner join pg_type ty on a.atttypid = ty.oid ")
 		             wxT("left join pg_attrdef ad on a.attrelid = ad.adrelid and a.attnum = ad.adnum ")
-		             wxT("inner join pg_class t on a.attrelid = t.oid and t.relkind in ('r','v') ")
+		             wxT("inner join pg_class t on a.attrelid = t.oid and t.relkind in ('r','v','m') ")
 		             wxT("left join pg_namespace n on t.relnamespace = n.oid ")
 		             wxT("where a.attnum > 0 ")
 		             wxT("  and (ty.typname ilike ") + txtPatternStr + wxT(" or ad.adsrc ilike ") + txtPatternStr + wxT(") ")
@@ -556,7 +557,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		             wxT("':Schemas/' || n.nspname || '/:Views/' || c.relname, n.nspname ")
 		             wxT(" FROM pg_class c ")
 		             wxT(" LEFT JOIN pg_namespace n ON n.oid = c.relnamespace ")
-		             wxT(" WHERE c.relkind = 'v' ")
+		             wxT(" WHERE c.relkind IN ('v','m') ")
 		             wxT("  and pg_get_viewdef(c.oid) ilike ") + txtPatternStr + wxT(" ")
 		             wxT("UNION ") // Relation's column names except for Views (searched earlier)
 		             wxT("SELECT CASE ")
@@ -576,7 +577,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		             wxT(" inner join pg_class c on a.attrelid = c.oid and c.relkind in ('c','r','f') ")
 		             wxT(" left join pg_namespace n on c.relnamespace = n.oid ")
 		             wxT(" where a.attname ilike ") + txtPatternStr + wxT(" ");
-		             // TODO: search for other object's definitions (indexes, constraints and so on)
+		// TODO: search for other object's definitions (indexes, constraints and so on)
 		searchSQL += wxT(") sd \n");
 	} // search definitions
 
@@ -608,20 +609,20 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		searchSQL += wxT("SELECT CASE")
 		             wxT("	WHEN c.relkind = 'r' THEN 'Tables'")
 		             wxT("	WHEN c.relkind = 'S' THEN 'Sequences'")
-		             wxT("	WHEN c.relkind = 'v' THEN 'Views'")
+		             wxT("	WHEN c.relkind IN ('v','m') THEN 'Views'")
 		             wxT("	ELSE 'should not happen'")
 		             wxT("	END AS type, c.relname AS objectname,")
 		             wxT("	':Schemas/' || n.nspname || '/' ||")
 		             wxT("	CASE")
 		             wxT("	WHEN c.relkind = 'r' THEN ':Tables'")
 		             wxT("	WHEN c.relkind = 'S' THEN ':Sequences'")
-		             wxT("	WHEN c.relkind = 'v' THEN ':Views'")
+		             wxT("	WHEN c.relkind IN ('v','m') THEN ':Views'")
 		             wxT("	ELSE 'should not happen'")
 		             wxT("	END || '/' || c.relname AS path, n.nspname")
 		             wxT("	FROM ") + pd +
 		             wxT("	JOIN pg_class c on pd.relname = 'pg_class' and pd.objoid = c.oid")
 		             wxT("	LEFT JOIN pg_namespace n ON n.oid = c.relnamespace")
-		             wxT("	WHERE c.relkind in ('r','S','v')")
+		             wxT("	WHERE c.relkind in ('r','S','v','m')")
 		             wxT("	UNION")
 		             wxT("	SELECT 'Indexes', cls.relname, ':Schemas/' || n.nspname || '/:Tables/' || tab.relname || '/:Indexes/' || cls.relname, n.nspname")
 		             wxT("	FROM ") + pd +
@@ -653,11 +654,11 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		             wxT("	case")
 		             wxT("	when t.relkind = 'r' then ':Tables'")
 		             wxT("	when t.relkind = 'S' then ':Sequences'")
-		             wxT("	when t.relkind = 'v' then ':Views'")
+		             wxT("	when t.relkind in ('v','m') then ':Views'")
 		             wxT("	else 'should not happen'")
 		             wxT("	end || '/' || t.relname || '/:Columns/' || a.attname AS path, n.nspname")
 		             wxT("	from ") + pd +
-		             wxT("	join pg_class t on pd.relname = 'pg_class' and pd.objoid = t.oid and t.relkind in ('r','v')")
+		             wxT("	join pg_class t on pd.relname = 'pg_class' and pd.objoid = t.oid and t.relkind in ('r','v','m')")
 		             wxT("  join pg_attribute a on a.attrelid = t.oid and pd.objsubid = a.attnum")
 		             wxT("	left join pg_namespace n on t.relnamespace = n.oid where a.attnum > 0")
 		             wxT("	union")
@@ -671,13 +672,13 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		             wxT("	left join pg_class tf on c.confrelid = tf.oid")
 		             wxT("	left join pg_namespace n on t.relnamespace = n.oid")
 		             wxT("	union")
-		             wxT("  select 'Rules', r.rulename, ':Schemas/' || n.nspname||case when t.relkind = 'v' then '/:Views/' else '/:Tables/' end||t.relname||'/:Rules/'|| r.rulename, n.nspname")
+		             wxT("  select 'Rules', r.rulename, ':Schemas/' || n.nspname||case when t.relkind in ('v','m') then '/:Views/' else '/:Tables/' end||t.relname||'/:Rules/'|| r.rulename, n.nspname")
 		             wxT("	from ") + pd +
 		             wxT("	join pg_rewrite r on pd.relname = 'pg_rewrite' and pd.objoid = r.oid")
 		             wxT("	left join pg_class t on r.ev_class = t.oid")
 		             wxT("	left join pg_namespace n on t.relnamespace = n.oid")
 		             wxT("	union")
-		             wxT("	select 'Triggers', tr.tgname, ':Schemas/' || n.nspname||case when t.relkind = 'v' then '/:Views/' else '/:Tables/' end||t.relname || '/:Triggers/' || tr.tgname, n.nspname")
+		             wxT("	select 'Triggers', tr.tgname, ':Schemas/' || n.nspname||case when t.relkind in ('v','m') then '/:Views/' else '/:Tables/' end||t.relname || '/:Triggers/' || tr.tgname, n.nspname")
 		             wxT("	from ") + pd +
 		             wxT("	join pg_trigger tr on pd.relname = 'pg_trigger' and pd.objoid = tr.oid")
 		             wxT("	left join pg_class t on tr.tgrelid = t.oid")
@@ -771,35 +772,35 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		if(currentdb->BackendMinimumVersion(8, 4) && currentdb->GetConnection()->IsSuperuser())
 		{
 			searchSQL += wxT("	union")
-		                 wxT("	select 'Foreign Data Wrappers', fdw.fdwname, ':Foreign Data Wrappers/' || fdw.fdwname, NULL as nspname ")
-		                 wxT("	  from ") + pd +
-		                 wxT("	  JOIN pg_foreign_data_wrapper fdw ON pd.relname = 'pg_foreign_data_wrapper' and pd.objoid = fdw.oid")
-		                 wxT("	union ")
-		                 wxT("	select 'Foreign Server', sr.srvname, ':Foreign Data Wrappers/' || fdw.fdwname || '/:Foreign Servers/' || sr.srvname, NULL as nspname")
-		                 wxT("	  from ") + pd +
-		                 wxT("	  JOIN pg_foreign_server sr ON pd.relname = 'pg_foreign_server' and pd.objoid = sr.oid")
-		                 wxT("	inner join pg_foreign_data_wrapper fdw on sr.srvfdw = fdw.oid ");
+			             wxT("	select 'Foreign Data Wrappers', fdw.fdwname, ':Foreign Data Wrappers/' || fdw.fdwname, NULL as nspname ")
+			             wxT("	  from ") + pd +
+			             wxT("	  JOIN pg_foreign_data_wrapper fdw ON pd.relname = 'pg_foreign_data_wrapper' and pd.objoid = fdw.oid")
+			             wxT("	union ")
+			             wxT("	select 'Foreign Server', sr.srvname, ':Foreign Data Wrappers/' || fdw.fdwname || '/:Foreign Servers/' || sr.srvname, NULL as nspname")
+			             wxT("	  from ") + pd +
+			             wxT("	  JOIN pg_foreign_server sr ON pd.relname = 'pg_foreign_server' and pd.objoid = sr.oid")
+			             wxT("	inner join pg_foreign_data_wrapper fdw on sr.srvfdw = fdw.oid ");
 		}
 
 		if(currentdb->BackendMinimumVersion(9, 1))
 		{
 			searchSQL += wxT("	union")
-		                 wxT("	select 'Foreign Tables', c.relname, ':Schemas/' || ns.nspname || '/:Foreign Tables/' || c.relname, ns.nspname")
-		                 wxT("  from ") + pd +
-		                 wxT("  JOIN pg_class c ON pd.relname = 'pg_class' and pd.objoid = c.oid")
-		                 wxT("  join pg_foreign_table ft on ft.ftrelid = c.oid")
-		                 wxT("	inner join pg_namespace ns on c.relnamespace = ns.oid")
-		                 wxT("  union")
-		                 wxT("	select 'Extensions', x.extname, ':Extensions/' || x.extname, NULL AS nspname")
-		                 wxT("	FROM ") + pd +
-		                 wxT("	JOIN pg_extension x ON pd.relname = 'pg_extension' and pd.objoid = x.oid")
-		                 wxT("	JOIN pg_namespace n on x.extnamespace=n.oid")
-		                 wxT("	join pg_available_extensions() e(name, default_version, comment) ON x.extname=e.name")
-		                 wxT("	union")
-		                 wxT("	SELECT 'Collations', c.collname, ':Schemas/' || n.nspname || '/:Collations/' || c.collname, n.nspname")
-		                 wxT("	FROM ") + pd +
-		                 wxT("	JOIN pg_collation c ON pd.relname = 'pg_collation' and pd.objoid = c.oid")
-		                 wxT("	JOIN pg_namespace n ON n.oid=c.collnamespace");
+			             wxT("	select 'Foreign Tables', c.relname, ':Schemas/' || ns.nspname || '/:Foreign Tables/' || c.relname, ns.nspname")
+			             wxT("  from ") + pd +
+			             wxT("  JOIN pg_class c ON pd.relname = 'pg_class' and pd.objoid = c.oid")
+			             wxT("  join pg_foreign_table ft on ft.ftrelid = c.oid")
+			             wxT("	inner join pg_namespace ns on c.relnamespace = ns.oid")
+			             wxT("  union")
+			             wxT("	select 'Extensions', x.extname, ':Extensions/' || x.extname, NULL AS nspname")
+			             wxT("	FROM ") + pd +
+			             wxT("	JOIN pg_extension x ON pd.relname = 'pg_extension' and pd.objoid = x.oid")
+			             wxT("	JOIN pg_namespace n on x.extnamespace=n.oid")
+			             wxT("	join pg_available_extensions() e(name, default_version, comment) ON x.extname=e.name")
+			             wxT("	union")
+			             wxT("	SELECT 'Collations', c.collname, ':Schemas/' || n.nspname || '/:Collations/' || c.collname, n.nspname")
+			             wxT("	FROM ") + pd +
+			             wxT("	JOIN pg_collation c ON pd.relname = 'pg_collation' and pd.objoid = c.oid")
+			             wxT("	JOIN pg_namespace n ON n.oid=c.collnamespace");
 		}
 		searchSQL += wxT(") sc \n");
 	} // search comments
@@ -825,7 +826,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 		searchSQL += (nextPredicate) ? wxT("AND ") : wxT("WHERE ");
 		nextPredicate = true;
 		searchSQL += wxT("ii.nspname IN (SELECT n.nspname FROM pg_namespace n WHERE n.nspowner = (SELECT u.usesysid FROM pg_user u WHERE u.usename = ")
-		           + currentdb->GetConnection()->qtDbString(currentdb->GetConnection()->GetUser()) + wxT(")) ");
+		             + currentdb->GetConnection()->qtDbString(currentdb->GetConnection()->GetUser()) + wxT(")) ");
 	}
 	else if (cbSchema->GetValue() != _("All schemas"))
 	{
@@ -853,7 +854,6 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 			if(objectType == wxT("Login Roles") || objectType == wxT("Group Roles") || objectType == wxT("Tablespaces"))
 			{
 				wxStringTokenizer tkz(databasePath, wxT("/"));
-				wxString newPath;
 				while(tkz.HasMoreTokens())
 				{
 					wxString token = tkz.GetNextToken();
@@ -919,7 +919,7 @@ void dlgSearchObject::OnSearch(wxCommandEvent &ev)
 	if (statusBar)
 	{
 		if (i > 0)
-			statusBar->SetStatusText(wxString::Format(wxPLURAL("Found %d item", "Found %d items",i), i));
+			statusBar->SetStatusText(wxString::Format(wxPLURAL("Found %d item", "Found %d items", i), i));
 		else
 			statusBar->SetStatusText(_("Nothing was found"));
 	}

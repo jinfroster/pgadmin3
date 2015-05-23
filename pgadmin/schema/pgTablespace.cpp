@@ -253,14 +253,14 @@ void pgTablespace::MoveTablespace(frmMain *form)
 	dlgMoveTablespace rdo(form, GetConnection(), this);
 	if (rdo.ShowModal() != wxID_CANCEL)
 	{
-		if (wxMessageBox(_("Are you sure you wish to move objects from ") + GetQuotedFullIdentifier() + _(" to ") + rdo.GetTablespace() + _("?"), _("Move tablespace?"), wxYES_NO) != wxYES)
+		if (wxMessageBox(wxString::Format(_("Are you sure you wish to move objects from %s to %s?"), (const char *)GetQuotedFullIdentifier().mb_str(), (const char *)rdo.GetTablespace().mb_str()), _("Move tablespace?"), wxYES_NO) != wxYES)
 			return;
 
 		query = wxT("ALTER TABLESPACE ") + GetQuotedFullIdentifier();
-        query += wxT(" MOVE ") + rdo.GetKind().Upper();
-        if (rdo.GetOwner().Length() > 0)
-            query += wxT(" OWNED BY ") + qtIdent(rdo.GetOwner());
-        query += wxT(" TO ") + qtIdent(rdo.GetTablespace());
+		query += wxT(" MOVE ") + rdo.GetKind().Upper();
+		if (rdo.GetOwner().Length() > 0)
+			query += wxT(" OWNED BY ") + qtIdent(rdo.GetOwner());
+		query += wxT(" TO ") + qtIdent(rdo.GetTablespace());
 
 		GetConnection()->ExecuteVoid(query);
 	}
@@ -282,8 +282,6 @@ pgObject *pgTablespace::Refresh(ctlTree *browser, const wxTreeItemId item)
 pgObject *pgTablespaceFactory::CreateObjects(pgCollection *collection, ctlTree *browser, const wxString &restriction)
 {
 	pgTablespace *tablespace = 0;
-
-	wxString tabname;
 
 	pgSet *tablespaces;
 	if (collection->GetConnection()->BackendMinimumVersion(9, 2))

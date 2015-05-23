@@ -550,6 +550,8 @@ int dlgServer::Go(bool modal)
 		colourPicker->SetColour(colour);
 	}
 
+	// Call CheckRange to set state on OK button
+        CheckChange();
 	return dlgProperty::Go(modal);
 }
 
@@ -568,7 +570,6 @@ wxString dlgServer::GetPassword()
 
 pgObject *dlgServer::CreateObject(pgCollection *collection)
 {
-	wxString name = GetName();
 	pgServer *obj = NULL;
 
 #if defined(HAVE_OPENSSL_CRYPTO) || defined(HAVE_GCRYPT)

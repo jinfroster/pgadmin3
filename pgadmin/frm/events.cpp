@@ -134,7 +134,8 @@ void frmMain::OnSize(wxSizeEvent &event)
 // to reset m_metaDown
 void frmMain::OnTreeKeyDown(wxTreeEvent &event)
 {
-	switch (event.GetKeyCode())
+	int keyCode = event.GetKeyCode();
+	switch (keyCode)
 	{
 		case WXK_F1:
 			OnHelp(event);
@@ -144,6 +145,11 @@ void frmMain::OnTreeKeyDown(wxTreeEvent &event)
 			break;
 		case WXK_DELETE:
 			OnDelete(event);
+			break;
+			// Is tempting to write all cases(this handler) in tree control itself
+		case WXK_LEFT:
+		case WXK_RIGHT:
+			browser->NavigateTree(keyCode);
 			break;
 		default:
 			event.Skip();
@@ -743,16 +749,15 @@ void frmMain::OnSelRightClick(wxTreeEvent &event)
 	{
 		browser->SelectItem(item);
 
-		// Prevent changes to "currentObject" by "execSelchange" function by another thread.
-		// Will hold the lock until we do popup on the respective object.
-		//
+		// Prevent changes to "currentObject" by "execSelchange" function by another
+		// thread. Will hold the lock until we have the actual object in hand.
 		s_currentObjectMutex.Lock();
 		currentObject = browser->GetObject(item);
+		s_currentObjectMutex.Unlock();
 	}
 
 	if (currentObject)
 		doPopup(browser, event.GetPoint(), currentObject);
-	s_currentObjectMutex.Unlock();
 }
 
 

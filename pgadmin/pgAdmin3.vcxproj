@@ -43,41 +43,49 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (3.0)|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release (3.0)|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug (3.0)|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -3327,11 +3335,14 @@
     <png2c Include="include\images\enumerations.png" />
     <png2c Include="include\images\ex_aggregate.png" />
     <png2c Include="include\images\ex_append.png" />
+    <png2c Include="include\images\ex_bmp_and.png" />
     <png2c Include="include\images\ex_bmp_heap.png" />
     <png2c Include="include\images\ex_bmp_index.png" />
+    <png2c Include="include\images\ex_bmp_or.png" />
     <png2c Include="include\images\ex_broadcast_motion.png" />
     <png2c Include="include\images\ex_cte_scan.png" />
     <png2c Include="include\images\ex_delete.png" />
+    <png2c Include="include\images\ex_foreign_scan.png" />
     <png2c Include="include\images\ex_gather_motion.png" />
     <png2c Include="include\images\ex_group.png" />
     <png2c Include="include\images\ex_hash.png" />
@@ -3342,13 +3353,16 @@
     <png2c Include="include\images\ex_hash_setop_intersect.png" />
     <png2c Include="include\images\ex_hash_setop_intersect_all.png" />
     <png2c Include="include\images\ex_hash_setop_unknown.png" />
+    <png2c Include="include\images\ex_index_only_scan.png" />
     <png2c Include="include\images\ex_index_scan.png" />
     <png2c Include="include\images\ex_insert.png" />
     <png2c Include="include\images\ex_join.png" />
     <png2c Include="include\images\ex_limit.png" />
+    <png2c Include="include\images\ex_lock_rows.png" />
     <png2c Include="include\images\ex_materialize.png" />
     <png2c Include="include\images\ex_merge.png" />
     <png2c Include="include\images\ex_merge_anti_join.png" />
+    <png2c Include="include\images\ex_merge_append.png" />
     <png2c Include="include\images\ex_merge_semi_join.png" />
     <png2c Include="include\images\ex_nested.png" />
     <png2c Include="include\images\ex_nested_loop_anti_join.png" />
@@ -3365,6 +3379,7 @@
     <png2c Include="include\images\ex_unique.png" />
     <png2c Include="include\images\ex_unknown.png" />
     <png2c Include="include\images\ex_update.png" />
+    <png2c Include="include\images\ex_values_scan.png" />
     <png2c Include="include\images\ex_window_aggregate.png" />
     <png2c Include="include\images\ex_worktable_scan.png" />
     <png2c Include="include\images\exclude.png" />

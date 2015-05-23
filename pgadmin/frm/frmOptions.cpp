@@ -90,6 +90,7 @@
 #define chkColumnNames              CTRL_CHECKBOX("chkColumnNames")
 #define txtThousandsSeparator       CTRL_TEXT("txtThousandsSeparator")
 #define chkAutoRollback             CTRL_CHECKBOX("chkAutoRollback")
+#define chkAutoCommit               CTRL_CHECKBOX("chkAutoCommit")
 #define chkDoubleClickProperties    CTRL_CHECKBOX("chkDoubleClickProperties")
 #define chkShowNotices              CTRL_CHECKBOX("chkShowNotices")
 #define cbLanguage                  CTRL_COMBOBOX("cbLanguage")
@@ -307,6 +308,7 @@ frmOptions::frmOptions(frmMain *parent)
 	chkIndicateNull->SetValue(settings->GetIndicateNull());
 	txtThousandsSeparator->SetValue(settings->GetThousandsSeparator());
 	chkAutoRollback->SetValue(settings->GetAutoRollback());
+	chkAutoCommit->SetValue(settings->GetAutoCommit());
 	chkDoubleClickProperties->SetValue(settings->GetDoubleClickProperties());
 	txtDecimalMark->SetValue(settings->GetDecimalMark());
 	chkColumnNames->SetValue(settings->GetColumnNames());
@@ -679,6 +681,7 @@ void frmOptions::OnOK(wxCommandEvent &ev)
 	settings->SetColumnNames(chkColumnNames->GetValue());
 	settings->SetThousandsSeparator(txtThousandsSeparator->GetValue());
 	settings->SetAutoRollback(chkAutoRollback->GetValue());
+	settings->SetAutoCommit(chkAutoCommit->GetValue());
 	settings->SetDoubleClickProperties(chkDoubleClickProperties->GetValue());
 	settings->SetShowNotices(chkShowNotices->GetValue());
 

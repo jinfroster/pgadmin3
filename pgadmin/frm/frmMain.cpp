@@ -237,6 +237,7 @@ frmMain::frmMain(const wxString &title)
 
 	browser->Expand(root);
 	browser->SortChildren(root);
+	browser->SetFocus();
 }
 
 
@@ -1121,12 +1122,12 @@ int frmMain::ReconnectServer(pgServer *server, bool restore)
 			return res;
 		}
 		case PGCONN_DNSERR:
-			/*
-			// looks strange to me. Shouldn_t server be removed from the tree as well?
-			delete server;
-			OnAddServer(wxCommandEvent());
-			break;
-			*/
+		/*
+		// looks strange to me. Shouldn_t server be removed from the tree as well?
+		delete server;
+		OnAddServer(wxCommandEvent());
+		break;
+		*/
 		case PGCONN_BAD:
 			ReportConnError(server);
 			break;
